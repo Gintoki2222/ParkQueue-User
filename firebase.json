@@ -1,0 +1,32 @@
+{
+  "hosting": {
+    "public": "frontend",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/admin",
+        "destination": "/login/admin-login.html"
+      },
+      {
+        "source": "/admin/dashboard",
+        "destination": "/dashboard/dashboard.html"
+      },
+      {
+        "source": "/admin/pending",
+        "destination": "/pendingApproval/approvals.html"
+      },
+      {
+        "source": "/user-verification/**",
+        "destination": "/userVerification/user-verification.html"
+      },
+      {
+        "source": "**",
+        "destination": "/Login&Register.html"
+      }
+    ]
+  }
+}
