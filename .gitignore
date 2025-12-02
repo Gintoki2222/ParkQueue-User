@@ -67,14 +67,6 @@ firebase-debug.log
 .firebase/hosting.*.cache
 
 # ──────────────────────────────────────────────
-# CRITICAL: Firebase Admin SDK private key (DO NOT UPLOAD)
-# ──────────────────────────────────────────────
-serviceAccountKey.json
-backend/serviceAccountKey.json
-*.json.key
-*-key.json
-
-# ──────────────────────────────────────────────
 # Environment Variables
 # ──────────────────────────────────────────────
 .env

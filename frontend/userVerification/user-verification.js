@@ -12,6 +12,8 @@ import {
   onAuthStateChanged,
   Timestamp,
   signOut,
+  updateDoc,
+  deleteDoc,
 } from "../firebase.js";
 
 class UserVerification {
@@ -23,9 +25,43 @@ class UserVerification {
     this.pendingApproval = document.getElementById("pendingApproval");
     this.closeSuccessBtn = document.getElementById("closeSuccess");
 
+    // Add rejection message container to HTML first
+    this.addRejectionContainer();
+    this.rejectedMessage = document.getElementById("rejectedMessage");
+
     this.currentUser = null;
+    this.userData = null;
     this.setupEventListeners();
     this.checkAuthState();
+  }
+
+  addRejectionContainer() {
+    // Add rejection message container after pendingApproval div
+    const pendingApproval = document.getElementById("pendingApproval");
+    if (pendingApproval && !document.getElementById("rejectedMessage")) {
+      const rejectedMessage = document.createElement("div");
+      rejectedMessage.id = "rejectedMessage";
+      rejectedMessage.className = "verification-modal";
+      rejectedMessage.style.display = "none";
+      rejectedMessage.innerHTML = `
+        <div class="rejection-content">
+          <div class="rejection-icon">❌</div>
+          <h3>Account Rejected</h3>
+          <div class="rejection-reason">
+            <h4>Reason for Rejection:</h4>
+            <p id="rejectionReasonText">No reason provided</p>
+          </div>
+          <p class="rejection-instruction">
+            Please review the reason above and update your information accordingly.
+          </p>
+          <div class="rejection-actions">
+            <button id="updateInfoBtn" class="update-btn">Update Information</button>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+          </div>
+        </div>
+      `;
+      pendingApproval.parentNode.insertBefore(rejectedMessage, pendingApproval.nextSibling);
+    }
   }
 
   setupEventListeners() {
@@ -54,14 +90,26 @@ class UserVerification {
         }
       });
     }
+
+    // Add event listener for update info button
+    document.addEventListener("click", (e) => {
+      if (e.target.id === "updateInfoBtn") {
+        this.showUpdateForm();
+      }
+    });
   }
 
-  checkAuthState() {
+  async checkAuthState() {
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         this.currentUser = user;
         console.log("User signed in:", user.email);
-        await this.checkIfAlreadyVerified(user);
+        
+        // Get user data from users collection
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        this.userData = userDoc.exists() ? userDoc.data() : null;
+        
+        await this.checkVerificationStatus(user);
       } else {
         console.log("No user signed in - redirecting to login");
         window.location.href = "../Login&Register.html";
@@ -69,8 +117,22 @@ class UserVerification {
     });
   }
 
-  async checkIfAlreadyVerified(user) {
+  async checkVerificationStatus(user) {
     try {
+      // Check if user is already approved
+      if (this.userData?.admin_approved === true) {
+        console.log("User already approved - redirecting to dashboard");
+        window.location.href = "../Dashboard/dashboard.html";
+        return;
+      }
+
+      // Check if user was rejected
+      if (this.userData?.approval_status === "rejected") {
+        console.log("User account was rejected");
+        this.showRejectionMessage();
+        return;
+      }
+
       // Check if user already has personal info submitted
       const personalInfoQuery = await getDocs(
         query(collection(db, "personalInfo"), where("user_id", "==", user.uid))
@@ -88,19 +150,44 @@ class UserVerification {
         console.log(
           "User already submitted verification - showing pending message"
         );
-        this.showPendingMessage();
+        
+        // Check if user is actually pending or if they need to update
+        if (this.userData?.approval_status === "pending") {
+          this.showPendingMessage();
+        } else {
+          // If no approval_status but has info, assume pending
+          this.showPendingMessage();
+        }
         return;
       }
 
-      // Check if user is already approved in users collection
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-      if (userDoc.exists() && userDoc.data().admin_approved === true) {
-        console.log("User already approved - redirecting to dashboard");
-        window.location.href = "../Dashboard/dashboard.html";
-        return;
-      }
+      // If user has no info and is not rejected, show verification form
+      this.showVerificationForm();
+
     } catch (error) {
       console.error("Error checking verification status:", error);
+      this.showVerificationForm();
+    }
+  }
+
+  showRejectionMessage() {
+    this.hideAllModals();
+    
+    // Display rejection reason
+    const rejectionReasonText = document.getElementById("rejectionReasonText");
+    if (rejectionReasonText && this.userData?.rejection_reason) {
+      rejectionReasonText.textContent = this.userData.rejection_reason;
+    }
+    
+    if (this.rejectedMessage) {
+      this.rejectedMessage.style.display = "block";
+    }
+  }
+
+  showVerificationForm() {
+    this.hideAllModals();
+    if (this.verificationModal) {
+      this.verificationModal.style.display = "block";
     }
   }
 
@@ -115,6 +202,103 @@ class UserVerification {
     if (this.verificationModal) this.verificationModal.style.display = "none";
     if (this.successMessage) this.successMessage.style.display = "none";
     if (this.pendingApproval) this.pendingApproval.style.display = "none";
+    if (this.rejectedMessage) this.rejectedMessage.style.display = "none";
+  }
+
+  showUpdateForm() {
+    this.hideAllModals();
+    this.showVerificationForm();
+    
+    // Load existing data into form if available
+    this.loadExistingData();
+  }
+
+  async loadExistingData() {
+    try {
+      if (!this.currentUser) return;
+
+      // Load personal info
+      const personalInfoQuery = await getDocs(
+        query(collection(db, "personalInfo"), where("user_id", "==", this.currentUser.uid))
+      );
+      
+      if (!personalInfoQuery.empty) {
+        const personalInfo = personalInfoQuery.docs[0].data();
+        document.getElementById("firstName").value = personalInfo.first_name || "";
+        document.getElementById("lastName").value = personalInfo.last_name || "";
+        document.getElementById("middleName").value = personalInfo.middle_name || "";
+        document.getElementById("contactNumber").value = personalInfo.contact_number || "";
+        document.getElementById("address").value = personalInfo.address || "";
+        
+        if (personalInfo.date_of_birth) {
+          const dobDate = personalInfo.date_of_birth.toDate();
+          document.getElementById("dateOfBirth").value = dobDate.toISOString().split('T')[0];
+        }
+      }
+
+      // Load motor info
+      const motorInfoQuery = await getDocs(
+        query(collection(db, "motorInfo"), where("user_id", "==", this.currentUser.uid))
+      );
+      
+      if (!motorInfoQuery.empty) {
+        const motorInfo = motorInfoQuery.docs[0].data();
+        document.getElementById("brand").value = motorInfo.brand || "";
+        document.getElementById("model").value = motorInfo.model || "";
+        document.getElementById("plateNumber").value = motorInfo.plate_number || "";
+        
+        if (motorInfo.registration_date) {
+          const regDate = motorInfo.registration_date.toDate();
+          document.getElementById("registrationDate").value = regDate.toISOString().split('T')[0];
+        }
+      }
+
+      // Load documents
+      const documentsQuery = await getDocs(
+        query(collection(db, "documents"), where("user_id", "==", this.currentUser.uid))
+      );
+      
+      if (!documentsQuery.empty) {
+        const docs = documentsQuery.docs.map(doc => doc.data());
+        
+        // Find license document
+        const licenseDoc = docs.find(d => 
+          d.document_type === "Driver's License" || d.document_type === "Student Permit"
+        );
+        if (licenseDoc) {
+          document.getElementById("licenseDocumentType").value = licenseDoc.document_type;
+          document.getElementById("licenseDocument").value = licenseDoc.document_url || "";
+        }
+
+        // Find registration document
+        const regDoc = docs.find(d => 
+          d.document_type.includes("Registration") || d.document_type === "OR/CR"
+        );
+        if (regDoc) {
+          document.getElementById("registrationDocumentType").value = regDoc.document_type;
+          document.getElementById("registrationDocument").value = regDoc.document_url || "";
+        }
+
+        // Find additional document
+        const additionalDoc = docs.find(d => 
+          d.document_type !== licenseDoc?.document_type && 
+          d.document_type !== regDoc?.document_type
+        );
+        if (additionalDoc) {
+          document.getElementById("additionalDocumentType").value = additionalDoc.document_type === "Other" ? 
+            "Other" : additionalDoc.document_type;
+          document.getElementById("additionalDocument").value = additionalDoc.document_url || "";
+          
+          if (additionalDoc.document_type === "Other") {
+            document.getElementById("otherDocumentType").style.display = "block";
+            // Note: You might want to store the actual type in a separate field
+          }
+        }
+      }
+
+    } catch (error) {
+      console.error("Error loading existing data:", error);
+    }
   }
 
   async handleFormSubmission(e) {
@@ -194,12 +378,48 @@ class UserVerification {
     this.setLoadingState(true);
 
     try {
+      // Delete existing data if updating
+      await this.deleteExistingData();
+      
+      // Submit new data
       await this.submitVerificationData(verificationData);
       this.showSuccessMessage();
     } catch (error) {
       console.error("Error submitting verification:", error);
       alert("Failed to submit verification. Please try again.");
       this.setLoadingState(false);
+    }
+  }
+
+  async deleteExistingData() {
+    try {
+      // Delete personal info
+      const personalInfoQuery = await getDocs(
+        query(collection(db, "personalInfo"), where("user_id", "==", this.currentUser.uid))
+      );
+      for (const doc of personalInfoQuery.docs) {
+        await deleteDoc(doc.ref);
+      }
+
+      // Delete motor info
+      const motorInfoQuery = await getDocs(
+        query(collection(db, "motorInfo"), where("user_id", "==", this.currentUser.uid))
+      );
+      for (const doc of motorInfoQuery.docs) {
+        await deleteDoc(doc.ref);
+      }
+
+      // Delete documents
+      const documentsQuery = await getDocs(
+        query(collection(db, "documents"), where("user_id", "==", this.currentUser.uid))
+      );
+      for (const doc of documentsQuery.docs) {
+        await deleteDoc(doc.ref);
+      }
+
+      console.log("✅ Existing data deleted");
+    } catch (error) {
+      console.error("Error deleting existing data:", error);
     }
   }
 
@@ -290,6 +510,9 @@ class UserVerification {
       verification_submitted_at: timestamp,
       admin_approved: false,
       admin_reviewed: false,
+      approval_status: "pending", // Reset to pending
+      rejection_reason: "", // Clear rejection reason
+      rejected_at: null, // Clear rejection timestamp
       updated_at: timestamp,
     };
 
