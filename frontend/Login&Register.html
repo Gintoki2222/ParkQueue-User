@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkQueue - Login & Register</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+    <link rel="stylesheet" href="Log&Register.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Form Container (Login initially) -->
+        <div class="form-container" id="formContainer">
+            <!-- Login Form -->
+            <div class="form-content" id="loginForm">
+                <div class="logo-small">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <path d="M20 5 L35 12 L35 28 L20 35 L5 28 L5 12 Z" fill="#333" stroke="#5cb85c"
+                            stroke-width="2" />
+                    </svg>
+                    <span>ParkQueue</span>
+                </div>
+
+                <div class="input-group">
+                    <input type="email" id="loginEmail" placeholder="Enter your Email">
+                    <span class="icon"><i class="bi bi-envelope"></i></span>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="loginPassword" placeholder="Enter your Password">
+                    <span class="icon" onclick="togglePassword('loginPassword')">
+                        <i class="bi bi-eye" id="loginPasswordIcon"></i>
+                    </span>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember">
+                    <label for="remember">Remember me</label>
+                </div>
+
+                <div class="forgot-password">
+                    <a href="#" onclick="handleForgotPassword()">Forgot Password?</a>
+                </div>
+
+                <button class="btn-primary" id="loginBtn" onclick="handleLogin()">Login</button>
+
+                <div class="link-text">
+                    Don't Have an Account? <a href="#" onclick="switchToRegister(event)">Register Here</a>
+                </div>
+
+                <div class="divider">OR</div>
+
+                <button class="social-btn google" onclick="handleGoogleLogin()">
+                    <span>G</span> Log in with Google
+                </button>
+
+                <button class="social-btn facebook" disabled>
+                    <span>f</span> Log in with Facebook
+                </button>
+            </div>
+
+            <!-- Register Form (hidden initially) -->
+            <div class="form-content" id="registerForm" style="display: none;">
+                <div class="logo-small">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <path d="M20 5 L35 12 L35 28 L20 35 L5 28 L5 12 Z" fill="#333" stroke="#5cb85c"
+                            stroke-width="2" />
+                    </svg>
+                    <span>ParkQueue</span>
+                </div>
+
+                <div class="input-group">
+                    <input type="email" id="registerEmail" placeholder="Enter your Email">
+                    <span class="icon"><i class="bi bi-envelope"></i></span>
+                </div>
+
+                <div class="input-group">
+                    <input type="text" id="registerUsername" placeholder="Enter your Username">
+                    <span class="icon"><i class="bi bi-person"></i></span>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="registerPassword" placeholder="Enter Your Password">
+                    <span class="icon" onclick="togglePassword('registerPassword')">
+                        <i class="bi bi-eye" id="registerPasswordIcon"></i>
+                    </span>
+                </div>
+
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirm Password">
+                    <span class="icon" onclick="togglePassword('confirmPassword')">
+                        <i class="bi bi-eye" id="confirmPasswordIcon"></i>
+                    </span>
+                </div>
+
+                <button class="btn-primary" onclick="handleRegistration()">Send Verification Code</button>
+
+                <div class="link-text">
+                    Already have an Account? <a href="#" onclick="switchToLogin(event)">Login Here</a>
+                </div>
+
+                <div class="divider">OR</div>
+
+                <button class="social-btn google" onclick="handleGoogleLogin()">
+                    <span>G</span> Sign up with Google
+                </button>
+
+                <button class="social-btn facebook" disabled>
+                    <span>f</span> Sign up with Facebook
+                </button>
+            </div>
+        </div>
+
+        <!-- Image Container -->
+        <div class="image-container" id="imageContainer">
+            <img src="img/motorbg.jpg" alt="Motorcycle" class="bike-image">
+            <div class="logo-overlay">
+                <svg width="100" height="100" viewBox="0 0 120 120">
+                    <path d="M60 20 L100 40 L100 80 L60 100 L20 80 L20 40 Z" fill="none" stroke="#b4ff64"
+                        stroke-width="3" />
+                    <circle cx="60" cy="60" r="15" fill="#b4ff64" />
+                </svg>
+                <div class="logo-text">Park<br>Queue</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script type="module" src="firebase.js"></script>
+    <script src="Login&Register.js"></script>
+
+    <script>
+        // Enhanced form handling
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add Enter key support
+            document.getElementById('loginPassword')?.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+
+            document.getElementById('registerPassword')?.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleRegistration();
+                }
+            });
+
+            document.getElementById('confirmPassword')?.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    handleRegistration();
+                }
+            });
+
+            // Auto-focus first input when switching forms
+            const loginEmail = document.getElementById('loginEmail');
+            const registerEmail = document.getElementById('registerEmail');
+
+            if (loginEmail) loginEmail.focus();
+
+            // Show loading states
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function () {
+                    this.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Logging in...';
+                    this.disabled = true;
+                });
+            }
+        });
+
+        // Forgot password handler
+        async function handleForgotPassword() {
+            const email = document.getElementById('loginEmail')?.value || prompt('Please enter your email address:');
+            if (email) {
+                try {
+                    await resetPassword(email);
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        // Add CSS for loading spinner
+        const style = document.createElement('style');
+        style.textContent = `
+            .spin {
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            .social-btn:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+            .social-btn:disabled:hover {
+                transform: none;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+
+
+</html>
+
+<!--DONT DELETE!!:  
+    this Login&Register page should have a sliding animations when user switch from log in to registration.
+    user should be able to register using google account only or with email, username and password.
+    after the user fill up and register their informations, the emailjs will send them a verification code
+    either email input or google account.
+    when user logging in they wont need to use vefication codes..
+-->

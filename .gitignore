@@ -1,0 +1,146 @@
+# ──────────────────────────────────────────────
+# Logs
+# ──────────────────────────────────────────────
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+firebase-debug.log*
+firebase-debug.*.log*
+lerna-debug.log*
+
+# ──────────────────────────────────────────────
+# Runtime data
+# ──────────────────────────────────────────────
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# ──────────────────────────────────────────────
+# Backend (Node.js)
+# ──────────────────────────────────────────────
+backend/node_modules/
+backend/.npm
+backend/.eslintcache
+backend/.node_repl_history
+backend/package-lock.json
+backend/*.tgz
+backend/coverage/
+backend/.nyc_output
+backend/lib-cov/
+backend/build/
+backend/build/Release/
+backend/.grunt
+backend/.lock-wscript
+backend/lib-cov/
+backend/.yarn-integrity
+backend/yarn-error.log
+backend/npm-debug.log*
+
+# ──────────────────────────────────────────────
+# Frontend (if using frameworks)
+# ──────────────────────────────────────────────
+frontend/node_modules/
+frontend/.npm
+frontend/.eslintcache
+frontend/package-lock.json
+frontend/*.tgz
+frontend/dist/
+frontend/build/
+frontend/.yarn-integrity
+frontend/yarn-error.log
+frontend/npm-debug.log*
+
+# ──────────────────────────────────────────────
+# Firebase
+# ──────────────────────────────────────────────
+.firebase/
+.firebase/*
+firestore.indexes.json
+firestore.rules
+storage.rules
+.firebaserc
+firebase.json
+firebase-debug.log
+.firebase/hosting.*.cache
+
+# ──────────────────────────────────────────────
+# CRITICAL: Firebase Admin SDK private key (DO NOT UPLOAD)
+# ──────────────────────────────────────────────
+serviceAccountKey.json
+backend/serviceAccountKey.json
+*.json.key
+*-key.json
+
+# ──────────────────────────────────────────────
+# Environment Variables
+# ──────────────────────────────────────────────
+.env
+.env.local
+.env.production
+.env.development
+.env.test
+.env.*.local
+
+# ──────────────────────────────────────────────
+# IDE & Editor
+# ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ──────────────────────────────────────────────
+# OS Generated Files
+# ──────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ──────────────────────────────────────────────
+# Archives & Packages
+# ──────────────────────────────────────────────
+*.zip
+*.tar.gz
+*.rar
+backend.zip
+
+# ──────────────────────────────────────────────
+# Dataconnect
+# ──────────────────────────────────────────────
+.dataconnect/
+
+# ──────────────────────────────────────────────
+# Temporary files
+# ──────────────────────────────────────────────
+*.tmp
+*.temp
+.cache/
+.tmp/
+
+# ──────────────────────────────────────────────
+# Optional npm cache directory
+# ──────────────────────────────────────────────
+.npm
+
+# ──────────────────────────────────────────────
+# Optional REPL history
+# ──────────────────────────────────────────────
+.node_repl_history
+
+# ──────────────────────────────────────────────
+# Yarn
+# ──────────────────────────────────────────────
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ParkQueue - Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #2b9103 0%,
+          #041203 53%,
+          #6c7d00 100%
+        );
+        min-height: 100vh;
+        color: white;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Logo Header */
+      .logo-header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px 0;
+      }
+
+      .logo {
+        font-size: 48px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Main Grid Layout */
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      /* Box Styling - Make entire boxes clickable */
+      .box {
+        background: rgba(254, 254, 254, 0.95);
+        border-radius: 25px;
+        padding: 15px;
+        margin: 30px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        border: 2px solid transparent;
+      }
+
+      .box:hover {
+        box-shadow: 0 12px 35px rgba(43, 145, 3, 0.25);
+        transform: translateY(-3px);
+        border-color: #2b9103;
+      }
+
+      /* Left Box - User Info */
+      .user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #2b9103;
+      }
+
+      .user-main {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .user-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #2b9103;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 24px;
+        border: 3px solid white;
+      }
+
+      .user-details h2 {
+        font-size: 20px;
+        color: #2b9103;
+        margin-bottom: 5px;
+      }
+
+      .user-stats {
+        display: flex;
+        gap: 20px;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2b9103;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
+
+      /* Available Spots */
+      .available-spots {
+        text-align: center;
+        margin: 20px 0;
+      }
+
+      .spots-number {
+        font-size: 48px;
+        font-weight: bold;
+        color: #2b9103;
+        line-height: 1;
+      }
+
+      .spots-label {
+        font-size: 16px;
+        color: #666;
+        margin-top: 5px;
+      }
+
+      /* Profile Section */
+      .profile-section {
+        margin-top: 20px;
+      }
+
+      .section-title {
+        color: #2b9103;
+        font-size: 18px;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .subsection {
+        margin-bottom: 15px;
+      }
+
+      .subsection h4 {
+        color: #2b9103;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .subsection p {
+        margin-bottom: 6px;
+        line-height: 1.4;
+        color: #555;
+        font-size: 13px;
+      }
+
+      .email-highlight {
+        color: #2b9103;
+        font-weight: bold;
+        font-size: 14px;
+      }
+
+      /* Right Box - Parking Section */
+      .parking-section {
+        margin-top: 10px;
+      }
+
+      .contact-item {
+        margin-bottom: 15px;
+      }
+
+      .contact-name {
+        font-weight: bold;
+        color: #2b9103;
+        font-size: 16px;
+        margin-bottom: 3px;
+      }
+
+      .contact-id {
+        color: #666;
+        font-size: 12px;
+        margin-bottom: 3px;
+      }
+
+      .contact-email {
+        color: #2b9103;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .contact-email:hover {
+        text-decoration: underline;
+      }
+
+      /* Parking Map Box - Smaller Size */
+      .parking-map-container {
+        margin: 15px 0;
+        text-align: center;
+      }
+
+      .parking-map-title {
+        color: #2b9103;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+
+      .parking-map {
+        width: 100%;
+        height: 120px;
+        background: linear-gradient(45deg, #e8f5e8, #c8e6c9);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #2b9103;
+        font-weight: bold;
+        border: 1px solid #2b9103;
+        overflow: hidden;
+        font-size: 12px;
+      }
+
+      .map-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .map-placeholder .icon {
+        width: 100%;
+        height: 100%;
+      }
+
+      .map-placeholder img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+      }
+
+      /* Footer */
+      .footer {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        color: #333;
+      }
+
+      .footer h3 {
+        color: #2b9103;
+        font-size: 18px;
+        margin-bottom: 12px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .footer p {
+        line-height: 1.5;
+        color: #555;
+        text-align: justify;
+        font-size: 14px;
+      }
+
+      /* Logout Button - Prevent click from affecting box */
+      .logout-btn {
+        background: #ff4757;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 11px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 10;
+      }
+
+      .logout-btn:hover {
+        background: #ff3742;
+        transform: translateY(-1px);
+      }
+
+      /* Loading State */
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: white;
+        font-size: 18px;
+      }
+
+      /* Click indicator for boxes */
+      .box::after {
+        content: "Click to view →";
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 10px;
+        color: #2b9103;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .box:hover::after {
+        opacity: 1;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .user-header {
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .user-stats {
+          justify-content: center;
+          width: 100%;
+        }
+
+        .spots-number {
+          font-size: 40px;
+        }
+
+        .parking-map {
+          height: 100px;
+        }
+
+        .box {
+          margin: 15px;
+        }
+
+        .box::after {
+          content: "Tap to view →";
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Logo Header -->
+      <div class="logo-header">
+        <div class="logo">ParkQueue</div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading" id="loadingState">Loading your dashboard...</div>
+
+      <!-- Main Content -->
+      <div
+        class="dashboard-content"
+        id="dashboardContent"
+        style="display: none"
+      >
+        <!-- Two Main Boxes -->
+        <div class="main-grid">
+          <!-- Left Box - User Info & Profile - Entire box clickable -->
+          <div class="box" onclick="navigateToProfile()">
+            <div class="user-header">
+              <div class="user-main">
+                <div class="user-avatar" id="userAvatar">KG</div>
+                <div class="user-details">
+                  <h2 id="userName">Kenneth Gallaza</h2>
+                  <div class="user-stats">
+                    <div class="stat-item">
+                      <div class="stat-value">0</div>
+                      <div class="stat-label">Violation</div>
+                    </div>
+                    <div class="stat-item">
+                      <div class="stat-value">1</div>
+                      <div class="stat-label">Babae</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button
+                class="logout-btn"
+                onclick="event.stopPropagation(); logout()"
+              >
+                Logout
+              </button>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="profile-section">
+              <h3 class="section-title">Profile</h3>
+
+              <div class="subsection">
+                <h4>About ParkQueue</h4>
+                <p class="email-highlight" id="userEmail">
+                  kenneth@p.awaji.edu
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Box - Parking & Contact - Entire box clickable -->
+          <div class="box" onclick="navigateToParking()">
+            <div class="parking-section">
+              <h3 class="section-title">Parking</h3>
+
+              <!-- Available Spots -->
+              <div class="available-spots">
+                <div class="spots-number" id="availableSpots">8</div>
+                <div class="spots-label">Available Spots</div>
+              </div>
+
+              <!-- Parking Map Box -->
+              <div class="parking-map-container">
+                <div class="parking-map-title">Parking Area Map</div>
+                <div class="parking-map">
+                  <div class="map-placeholder">
+                    <div class="icon">
+                      <img src="/img/parkingmap.jpg" alt="Parking Map" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <h3>Parking Information</h3>
+          <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting
+            industry. Lorem Ipsum has been the industry's standard dummy text
+            ever since the 1500s, when an unknown printer took a galley of type
+            and scrambled it to make a type specimen book. It has survived not
+            only five centuries.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        db,
+        doc,
+        getDoc,
+        setDoc,
+        Timestamp,
+        signOut,
+        onAuthStateChanged,
+      } from "../firebase.js";
+
+      console.log("Dashboard loaded");
+
+      // Navigation functions
+      function navigateToParking() {
+        console.log("Navigating to parking page...");
+        // Replace with your actual parking page URL
+        window.location.href = "parking.html";
+      }
+
+      function navigateToProfile() {
+        console.log("Navigating to profile page...");
+        // Replace with your actual profile page URL
+        window.location.href = "../profile/profile.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDashboard();
+      });
+
+      async function initializeDashboard() {
+        try {
+          // Use onAuthStateChanged to wait for auth state
+          const user = await new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+              unsubscribe();
+              resolve(user);
+            });
+          });
+
+          if (!user) {
+            console.log("❌ No authenticated user - redirecting to login");
+            window.location.href = "../Login&Register.html";
+            return;
+          }
+
+          console.log(
+            "✅ Dashboard initialized for user:",
+            user.email,
+            "UID:",
+            user.uid
+          );
+
+          // First, check if user needs verification
+          const needsVerification = await checkUserVerificationStatus(user);
+
+          if (needsVerification) {
+            console.log(
+              "🔄 User needs verification - redirecting to verification page"
+            );
+            window.location.href = "../userVerification/user-verification.html";
+            return;
+          }
+
+          // User is verified, show dashboard content
+          showDashboardContent();
+          await loadUserData(user);
+        } catch (error) {
+          console.error("❌ Dashboard initialization error:", error);
+          window.location.href = "../Login&Register.html";
+        }
+      }
+
+      async function checkUserVerificationStatus(user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (!userDoc.exists()) {
+            console.log("❌ User document not found - needs verification");
+            return true; // Needs verification
+          }
+
+          const userData = userDoc.data();
+          console.log("📋 User data:", userData);
+
+          // Check if admin has approved the user
+          if (userData.admin_approved !== true) {
+            console.log(
+              "⏳ User not approved by admin yet - needs verification"
+            );
+            return true; // Needs admin approval
+          }
+
+          console.log("✅ User is fully verified and approved");
+          return false; // User is fully verified
+        } catch (error) {
+          console.error("❌ Error checking verification status:", error);
+          return true; // Assume needs verification on error
+        }
+      }
+
+      function showDashboardContent() {
+        // Hide loading, show dashboard
+        const loadingState = document.getElementById("loadingState");
+        const dashboardContent = document.getElementById("dashboardContent");
+
+        if (loadingState) loadingState.style.display = "none";
+        if (dashboardContent) dashboardContent.style.display = "block";
+      }
+
+      async function loadUserData(user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            updateUserUI(userData);
+          } else {
+            console.log("❌ User document not found, creating one...");
+            // Create user document if it doesn't exist
+            await setDoc(userDocRef, {
+              email: user.email,
+              username: user.email.split("@")[0],
+              first_name: "Kenneth",
+              last_name: "Gallaza",
+              is_verified: true,
+              email_verified: user.emailVerified || false,
+              created_at: Timestamp.now(),
+              updated_at: Timestamp.now(),
+              last_login: Timestamp.now(),
+              uid: user.uid,
+              admin_approved: true,
+            });
+            updateUserUI({
+              email: user.email,
+              first_name: "Kenneth",
+              last_name: "Gallaza",
+            });
+          }
+        } catch (error) {
+          console.error("❌ Error loading user data:", error);
+        }
+      }
+
+      function updateUserUI(userData) {
+        const userName = document.getElementById("userName");
+        const userEmail = document.getElementById("userEmail");
+        const userAvatar = document.getElementById("userAvatar");
+
+        if (userName) {
+          userName.textContent =
+            userData.first_name && userData.last_name
+              ? `${userData.first_name} ${userData.last_name}`
+              : "Kenneth Gallaza";
+        }
+        if (userEmail) {
+          userEmail.textContent = userData.email || "kenneth@p.awaji.edu";
+        }
+        if (userAvatar) {
+          const name = userData.first_name || "Kenneth";
+          userAvatar.textContent = name.charAt(0).toUpperCase() + "G";
+        }
+      }
+
+      // Logout function
+      async function logout() {
+        try {
+          console.log("🚪 Logging out...");
+          await signOut(auth);
+          window.location.href = "../Login&Register.html";
+        } catch (error) {
+          console.error("❌ Logout error:", error);
+          alert("Logout failed: " + error.message);
+        }
+      }
+
+      // Make functions globally available
+      window.logout = logout;
+      window.navigateToParking = navigateToParking;
+      window.navigateToProfile = navigateToProfile;
+
+      // Monitor auth state changes
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          console.log("🔒 User signed out - monitoring auth state");
+        }
+      });
+    </script>
+  </body>
+</html>

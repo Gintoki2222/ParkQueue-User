@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile - ParkQueue</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #2b9103 0%,
+          #041203 53%,
+          #6c7d00 100%
+        );
+        min-height: 100vh;
+        color: white;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .logo {
+        font-size: 36px;
+        font-weight: bold;
+        color: white;
+      }
+
+      .back-btn {
+        background: #2b9103;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .back-btn:hover {
+        background: #247a02;
+      }
+
+      /* Main Layout */
+      .profile-layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+        margin-bottom: 30px;
+      }
+
+      /* Box Styling */
+      .box {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        color: #333;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Profile Sidebar */
+      .profile-sidebar {
+        text-align: center;
+      }
+
+      .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: #2b9103;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 48px;
+        font-weight: bold;
+        margin: 0 auto 20px;
+        border: 5px solid white;
+      }
+
+      .profile-name {
+        font-size: 24px;
+        color: #2b9103;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+
+      .profile-email {
+        color: #666;
+        margin-bottom: 15px;
+      }
+
+      .verification-badge {
+        background: #2b9103;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+        display: inline-block;
+        margin-bottom: 20px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin: 20px 0;
+        padding: 20px 0;
+        border-top: 2px solid #e0e0e0;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2b9103;
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
+
+      /* QR Code Section */
+      .qr-section {
+        background: rgba(43, 145, 3, 0.05);
+        padding: 20px;
+        border-radius: 15px;
+        margin: 20px 0;
+        border: 2px solid #e0e0e0;
+      }
+
+      .qr-title {
+        color: #2b9103;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+      }
+
+      #qrcode {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 10px;
+      }
+
+      .qr-instruction {
+        font-size: 12px;
+        color: #666;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+
+      .download-btn {
+        background: #2b9103;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        width: 100%;
+      }
+
+      .download-btn:hover {
+        background: #247a02;
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+
+      .btn {
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        flex: 1;
+      }
+
+      .btn-primary {
+        background: #2b9103;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #247a02;
+      }
+
+      /* Profile Content */
+      .section-title {
+        color: #2b9103;
+        font-size: 20px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2b9103;
+      }
+
+      .info-section {
+        margin-bottom: 25px;
+      }
+
+      .info-section h3 {
+        color: #2b9103;
+        margin-bottom: 15px;
+        font-size: 16px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      .info-item {
+        margin-bottom: 15px;
+      }
+
+      .info-label {
+        font-weight: bold;
+        color: #2b9103;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .info-value {
+        color: #555;
+        background: #f8f9fa;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      /* Vehicle Info */
+      .vehicle-card {
+        background: rgba(43, 145, 3, 0.05);
+        padding: 20px;
+        border-radius: 15px;
+        border-left: 4px solid #2b9103;
+        margin-top: 15px;
+      }
+
+      /* Loading & Error States */
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: white;
+        font-size: 18px;
+      }
+
+      .error-message {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        color: #ff4757;
+        margin-bottom: 20px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .profile-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="logo">ParkQueue</div>
+        <button class="back-btn" onclick="goBackToDashboard()">
+          ← Back to Dashboard
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loadingState">Loading your profile...</div>
+
+      <!-- Error Message -->
+      <div class="error-message" id="errorState" style="display: none"></div>
+
+      <!-- Profile Content -->
+      <div class="profile-content" id="profileContent" style="display: none">
+        <div class="profile-layout">
+          <!-- Sidebar -->
+          <div class="box profile-sidebar">
+            <div class="profile-avatar" id="userAvatar">U</div>
+            <div class="profile-name" id="userName">Loading...</div>
+            <div class="profile-email" id="userEmail">loading@example.com</div>
+            <div class="verification-badge" id="verificationBadge">
+              Verified
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+              <div class="stat">
+                <span class="stat-value" id="violationsCount">0</span>
+                <span class="stat-label">Violations</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value" id="parkingsCount">0</span>
+                <span class="stat-label">Parkings</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value" id="vehiclesCount">0</span>
+                <span class="stat-label">Vehicles</span>
+              </div>
+            </div>
+
+            <!-- QR Code -->
+            <div class="qr-section">
+              <div class="qr-title">Your ParkQueue ID</div>
+              <div id="qrcode"></div>
+              <div class="qr-instruction">Scan for quick profile access</div>
+              <button class="download-btn" onclick="downloadQRCode()">
+                Download QR Code
+              </button>
+            </div>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+              <button class="btn btn-primary" onclick="editProfile()">
+                Edit Profile
+              </button>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="box">
+            <h2 class="section-title">Personal Information</h2>
+
+            <!-- Basic Info -->
+            <div class="info-section">
+              <h3>Basic Details</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">First Name</span>
+                  <div class="info-value" id="firstName">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Last Name</span>
+                  <div class="info-value" id="lastName">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Middle Name</span>
+                  <div class="info-value" id="middleName">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Date of Birth</span>
+                  <div class="info-value" id="dateOfBirth">-</div>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">Contact Number</span>
+                  <div class="info-value" id="contactNumber">-</div>
+                </div>
+                <div class="info-item full-width">
+                  <span class="info-label">Address</span>
+                  <div class="info-value" id="address">-</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehicle Info -->
+            <div class="info-section">
+              <h3>Vehicle Information</h3>
+              <div class="vehicle-card" id="vehicleCard">
+                <div class="info-grid">
+                  <div class="info-item">
+                    <span class="info-label">Brand</span>
+                    <div class="info-value" id="vehicleBrand">-</div>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Model</span>
+                    <div class="info-value" id="vehicleModel">-</div>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Plate Number</span>
+                    <div class="info-value" id="plateNumber">-</div>
+                  </div>
+                  <div class="info-item">
+                    <span class="info-label">Registration Date</span>
+                    <div class="info-value" id="registrationDate">-</div>
+                  </div>
+                </div>
+              </div>
+              <div
+                id="noVehicleMessage"
+                style="
+                  display: none;
+                  text-align: center;
+                  color: #666;
+                  padding: 20px;
+                "
+              >
+                No vehicle information available
+              </div>
+            </div>
+
+            <!-- Account Info -->
+            <div class="info-section">
+              <h3>Account Information</h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="info-label">Member Since</span>
+                  <div class="info-value" id="memberSince">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Last Login</span>
+                  <div class="info-value" id="lastLogin">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Account Status</span>
+                  <div class="info-value" id="accountStatus">-</div>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Verification</span>
+                  <div class="info-value" id="verificationStatus">-</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button class="btn btn-primary" onclick="changePassword()">
+                Change Password
+              </button>
+              <button
+                class="btn btn-primary"
+                onclick="contactSupport()"
+                style="background: #6c757d"
+              >
+                Support
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        db,
+        doc,
+        getDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+        onAuthStateChanged,
+      } from "../firebase.js";
+
+      let currentUser = null;
+      let qrCodeInstance = null;
+
+      // Initialize profile page
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeProfile();
+      });
+
+      async function initializeProfile() {
+        try {
+          console.log("🔧 Initializing profile page...");
+
+          // Wait for authentication
+          const user = await new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+              unsubscribe();
+              resolve(user);
+            });
+          });
+
+          if (!user) {
+            showError("Please log in to view your profile");
+            setTimeout(
+              () => (window.location.href = "../Login&Register.html"),
+              2000
+            );
+            return;
+          }
+
+          currentUser = user;
+          console.log("✅ User authenticated:", user.email);
+
+          await loadUserProfile(user);
+        } catch (error) {
+          console.error("❌ Profile initialization failed:", error);
+          showError("Failed to load profile: " + error.message);
+        }
+      }
+
+      async function loadUserProfile(user) {
+        try {
+          console.log("📥 Loading user profile data...");
+
+          // 1. Get user document
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!userDoc.exists()) {
+            throw new Error("User profile not found");
+          }
+          const userData = userDoc.data();
+          console.log("✅ User data loaded:", userData);
+
+          // 2. Get personal information
+          let personalInfo = {};
+          const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", user.uid)
+          );
+          const personalSnapshot = await getDocs(personalQuery);
+          if (!personalSnapshot.empty) {
+            personalInfo = personalSnapshot.docs[0].data();
+            console.log("✅ Personal info loaded:", personalInfo);
+          }
+
+          // 3. Get vehicle information
+          let vehicleInfo = {};
+          let hasVehicle = false;
+          const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", user.uid)
+          );
+          const vehicleSnapshot = await getDocs(vehicleQuery);
+          if (!vehicleSnapshot.empty) {
+            vehicleInfo = vehicleSnapshot.docs[0].data();
+            hasVehicle = true;
+            console.log("✅ Vehicle info loaded:", vehicleInfo);
+          }
+
+          // 4. Get statistics
+          const parkingCount = await getCollectionCount(
+            "parkingHistory",
+            user.uid
+          );
+          const violationsCount = await getCollectionCount(
+            "violations",
+            user.uid
+          );
+
+          // 5. Update UI
+          updateProfileUI(
+            userData,
+            personalInfo,
+            vehicleInfo,
+            hasVehicle,
+            parkingCount,
+            violationsCount
+          );
+
+          // 6. Generate QR Code
+          generateQRCode(userData, personalInfo, vehicleInfo);
+
+          // Show profile content
+          document.getElementById("loadingState").style.display = "none";
+          document.getElementById("profileContent").style.display = "block";
+
+          console.log("🎉 Profile loaded successfully");
+        } catch (error) {
+          console.error("❌ Error loading profile:", error);
+          showError("Failed to load profile data: " + error.message);
+        }
+      }
+
+      async function getCollectionCount(collectionName, userId) {
+        try {
+          const q = query(
+            collection(db, collectionName),
+            where("user_id", "==", userId)
+          );
+          const snapshot = await getDocs(q);
+          return snapshot.size;
+        } catch (error) {
+          console.error(`❌ Error counting ${collectionName}:`, error);
+          return 0;
+        }
+      }
+
+      function updateProfileUI(
+        userData,
+        personalInfo,
+        vehicleInfo,
+        hasVehicle,
+        parkingCount,
+        violationsCount
+      ) {
+        // User basic info
+        document.getElementById("userName").textContent =
+          `${personalInfo.first_name || ""} ${
+            personalInfo.last_name || ""
+          }`.trim() ||
+          userData.username ||
+          "User";
+
+        document.getElementById("userEmail").textContent = userData.email;
+
+        // Avatar
+        const firstName =
+          personalInfo.first_name ||
+          userData.first_name ||
+          userData.username ||
+          "U";
+        document.getElementById("userAvatar").textContent = firstName
+          .charAt(0)
+          .toUpperCase();
+
+        // Verification badge
+        const badge = document.getElementById("verificationBadge");
+        if (userData.admin_approved === true) {
+          badge.textContent = "✓ Verified";
+          badge.style.background = "#2b9103";
+        } else if (userData.verification_submitted === true) {
+          badge.textContent = "⏳ Pending";
+          badge.style.background = "#ffa502";
+        } else {
+          badge.textContent = "✗ Not Verified";
+          badge.style.background = "#ff4757";
+        }
+
+        // Statistics
+        document.getElementById("violationsCount").textContent =
+          violationsCount;
+        document.getElementById("parkingsCount").textContent = parkingCount;
+        document.getElementById("vehiclesCount").textContent = hasVehicle
+          ? "1"
+          : "0";
+
+        // Personal information
+        document.getElementById("firstName").textContent =
+          personalInfo.first_name || "-";
+        document.getElementById("lastName").textContent =
+          personalInfo.last_name || "-";
+        document.getElementById("middleName").textContent =
+          personalInfo.middle_name || "-";
+        document.getElementById("contactNumber").textContent =
+          personalInfo.contact_number || "-";
+        document.getElementById("address").textContent =
+          personalInfo.address || "-";
+
+        if (personalInfo.date_of_birth) {
+          const dob = personalInfo.date_of_birth.toDate();
+          document.getElementById("dateOfBirth").textContent =
+            dob.toLocaleDateString();
+        }
+
+        // Vehicle information
+        if (hasVehicle) {
+          document.getElementById("vehicleBrand").textContent =
+            vehicleInfo.brand || "-";
+          document.getElementById("vehicleModel").textContent =
+            vehicleInfo.model || "-";
+          document.getElementById("plateNumber").textContent =
+            vehicleInfo.plate_number || "-";
+
+          if (vehicleInfo.registration_date) {
+            const regDate = vehicleInfo.registration_date.toDate();
+            document.getElementById("registrationDate").textContent =
+              regDate.toLocaleDateString();
+          }
+
+          document.getElementById("vehicleCard").style.display = "block";
+          document.getElementById("noVehicleMessage").style.display = "none";
+        } else {
+          document.getElementById("vehicleCard").style.display = "none";
+          document.getElementById("noVehicleMessage").style.display = "block";
+        }
+
+        // Account information
+        if (userData.created_at) {
+          const memberSince = userData.created_at.toDate();
+          document.getElementById("memberSince").textContent =
+            memberSince.toLocaleDateString();
+        }
+
+        document.getElementById("lastLogin").textContent = userData.last_login
+          ? userData.last_login.toDate().toLocaleString()
+          : "-";
+
+        document.getElementById("accountStatus").textContent = "Active";
+        document.getElementById("verificationStatus").textContent =
+          userData.admin_approved === true
+            ? "Verified"
+            : userData.verification_submitted === true
+            ? "Pending"
+            : "Not Submitted";
+      }
+
+      function generateQRCode(userData, personalInfo, vehicleInfo) {
+        try {
+          // Create extremely minimal QR code data
+          const qrData = {
+            // Use single character keys and very short values
+            i: currentUser.uid.substring(0, 6), // Only 6 chars of user ID
+            n:
+              (personalInfo.first_name?.charAt(0) || "") +
+              (personalInfo.last_name?.charAt(0) || ""),
+            e: userData.email?.split("@")[0]?.substring(0, 8) || "", // Just username part
+            p: vehicleInfo.plate_number?.substring(0, 6) || "0",
+            v: userData.admin_approved === true ? "1" : "0",
+            t: "pq", // app identifier
+          };
+
+          const qrDataString = JSON.stringify(qrData);
+          console.log("QR Data (length):", qrDataString.length, qrDataString);
+
+          const qrContainer = document.getElementById("qrcode");
+          qrContainer.innerHTML = "";
+
+          // Use smallest possible settings
+          qrCodeInstance = new QRCode(qrContainer, {
+            text: qrDataString,
+            width: 100, // Smaller size
+            height: 100, // Smaller size
+            colorDark: "#2b9103",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.L, // LOWEST correction level
+          });
+
+          console.log("✅ QR code generated successfully");
+        } catch (error) {
+          console.error("❌ QR code generation failed:", error);
+
+          // Ultimate fallback - use just user ID
+          try {
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = "";
+
+            qrCodeInstance = new QRCode(qrContainer, {
+              text: currentUser.uid.substring(0, 12), // Just first 12 chars of user ID
+              width: 100,
+              height: 100,
+              colorDark: "#2b9103",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.L,
+            });
+          } catch (finalError) {
+            console.error("❌ Final QR code fallback failed:", finalError);
+            // Last resort - display message
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = `
+                <div style="text-align: center; color: #2b9103; padding: 15px;">
+                    <div style="font-size: 36px; margin-bottom: 5px;">🅿️</div>
+                    <div style="font-size: 10px;">ParkQueue ID</div>
+                    <div style="font-size: 8px; margin-top: 3px;">User: ${currentUser.uid.substring(
+                      0,
+                      8
+                    )}</div>
+                </div>
+            `;
+          }
+        }
+      }
+
+      function downloadQRCode() {
+        if (!qrCodeInstance) return;
+
+        const canvas = document.querySelector("#qrcode canvas");
+        if (canvas) {
+          const link = document.createElement("a");
+          link.download = `parkqueue-${currentUser.uid.slice(-6)}.png`;
+          link.href = canvas.toDataURL();
+          link.click();
+        }
+      }
+
+      function showError(message) {
+        document.getElementById("loadingState").style.display = "none";
+        const errorDiv = document.getElementById("errorState");
+        errorDiv.textContent = message;
+        errorDiv.style.display = "block";
+      }
+
+      // Navigation functions
+      function goBackToDashboard() {
+        window.location.href = "../dashboard/dashboard.html";
+      }
+
+      function editProfile() {
+        alert("Edit profile feature coming soon!");
+      }
+
+      function changePassword() {
+        alert("Password change feature coming soon!");
+      }
+
+      function contactSupport() {
+        alert("Contact support at: ParkQueue@gmail.com");
+      }
+
+      // Global functions
+      window.goBackToDashboard = goBackToDashboard;
+      window.editProfile = editProfile;
+      window.changePassword = changePassword;
+      window.contactSupport = contactSupport;
+      window.downloadQRCode = downloadQRCode;
+    </script>
+  </body>
+</html>
