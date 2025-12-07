@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ParkQueue - Dashboard</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background: linear-gradient(
+          135deg,
+          #2b9103 0%,
+          #041203 53%,
+          #6c7d00 100%
+        );
+        min-height: 100vh;
+        color: white;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding: 15px 0;
+      }
+
+      .logo {
+        font-size: 32px;
+        font-weight: bold;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .logout-btn {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .logout-btn:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+      }
+
+      /* Loading State */
+      .loading {
+        text-align: center;
+        padding: 100px 20px;
+        color: white;
+      }
+
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* Main Dashboard Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 25px;
+      }
+
+      /* Box Styling - Square Format */
+      .box {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        color: #333;
+        transition: all 0.3s ease;
+        aspect-ratio: 1/1;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .box:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 35px rgba(43, 145, 3, 0.25);
+      }
+
+      /* Profile Box */
+      .profile-box {
+        cursor: pointer;
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .user-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2b9103, #4CAF50);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 24px;
+        border: 3px solid white;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .user-info h2 {
+        font-size: 20px;
+        color: #2b9103;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .user-email {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .profile-details {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .detail-row:last-child {
+        border-bottom: none;
+      }
+
+      .detail-label {
+        font-size: 14px;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .detail-value {
+        font-size: 14px;
+        color: #333;
+        font-weight: 500;
+        text-align: right;
+      }
+
+      .status-badge {
+        background: #e8f5e9;
+        color: #2e7d32;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        display: inline-block;
+      }
+
+      /* Parking Box */
+      .parking-header {
+        margin-bottom: 20px;
+      }
+
+      .parking-header h2 {
+        font-size: 20px;
+        color: #2b9103;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .parking-subtitle {
+        font-size: 14px;
+        color: #666;
+      }
+
+      /* Available Spots - Centered */
+      .available-spots {
+        text-align: center;
+        margin: 20px 0;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .spots-number {
+        font-size: 64px;
+        font-weight: bold;
+        color: #2b9103;
+        line-height: 1;
+        margin-bottom: 10px;
+        transition: color 0.3s ease;
+      }
+
+      .spots-number.low {
+        color: #FF9800;
+      }
+
+      .spots-number.full {
+        color: #F44336;
+      }
+
+      .spots-label {
+        font-size: 16px;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .slots-info {
+        font-size: 14px;
+        color: #888;
+        margin-top: 5px;
+      }
+
+      /* Parking Status */
+      .parking-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px 0;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+      }
+
+      .status-not-parked {
+        background: rgba(76, 175, 80, 0.1);
+        color: #2e7d32;
+        border: 1px solid rgba(76, 175, 80, 0.2);
+      }
+
+      .status-parked {
+        background: rgba(255, 152, 0, 0.1);
+        color: #f57c00;
+        border: 1px solid rgba(255, 152, 0, 0.2);
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+      }
+
+      .status-not-parked .status-dot {
+        background: #4CAF50;
+      }
+
+      .status-parked .status-dot {
+        background: #FF9800;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+
+      /* Quick Park Button */
+      .quick-park-btn {
+        background: linear-gradient(135deg, #2b9103, #4CAF50);
+        color: white;
+        border: none;
+        padding: 16px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        box-shadow: 0 4px 15px rgba(43, 145, 3, 0.2);
+        margin-top: auto;
+      }
+
+      .quick-park-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(43, 145, 3, 0.3);
+      }
+
+      .quick-park-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* Current Slot Info */
+      .current-slot-info {
+        background: #e8f5e9;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+        border: 1px solid #c8e6c9;
+        display: none;
+      }
+
+      .current-slot-info.visible {
+        display: block;
+      }
+
+      .slot-info-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2e7d32;
+        font-size: 14px;
+      }
+
+      .slot-info-details {
+        font-size: 13px;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      /* Footer */
+      .footer {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        color: #333;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .footer h3 {
+        color: #2b9103;
+        font-size: 16px;
+        margin-bottom: 12px;
+        font-weight: 600;
+      }
+
+      .footer p {
+        line-height: 1.6;
+        color: #555;
+        font-size: 14px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 15px;
+        }
+
+        .header {
+          margin-bottom: 20px;
+        }
+
+        .logo {
+          font-size: 28px;
+        }
+
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+
+        .box {
+          aspect-ratio: unset;
+          min-height: 300px;
+          padding: 20px;
+        }
+
+        .spots-number {
+          font-size: 56px;
+        }
+
+        .user-avatar {
+          width: 55px;
+          height: 55px;
+          font-size: 22px;
+        }
+
+        .user-info h2 {
+          font-size: 18px;
+        }
+
+        .quick-park-btn {
+          padding: 14px;
+          font-size: 15px;
+        }
+
+        .footer {
+          padding: 15px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 10px;
+        }
+
+        .header {
+          flex-direction: column;
+          gap: 15px;
+          align-items: stretch;
+        }
+
+        .logout-btn {
+          align-self: flex-start;
+        }
+
+        .logo {
+          font-size: 24px;
+          text-align: center;
+        }
+
+        .box {
+          min-height: 280px;
+          padding: 15px;
+        }
+
+        .spots-number {
+          font-size: 48px;
+        }
+
+        .user-avatar {
+          width: 50px;
+          height: 50px;
+          font-size: 20px;
+        }
+
+        .user-info h2 {
+          font-size: 16px;
+        }
+
+        .detail-row {
+          padding: 10px 0;
+        }
+
+        .detail-label,
+        .detail-value {
+          font-size: 13px;
+        }
+
+        .quick-park-btn {
+          padding: 12px;
+          font-size: 14px;
+        }
+
+        .footer h3 {
+          font-size: 15px;
+        }
+
+        .footer p {
+          font-size: 13px;
+        }
+      }
+
+      /* Tablet Landscape */
+      @media (min-width: 769px) and (max-width: 1024px) {
+        .dashboard-grid {
+          gap: 20px;
+        }
+
+        .box {
+          min-height: 320px;
+        }
+      }
+
+      /* Hover effects */
+      .clickable:hover {
+        cursor: pointer;
+        opacity: 0.9;
+      }
+
+      /* Smooth transitions */
+      * {
+        transition: all 0.2s ease;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <!-- Header with Logo and Logout -->
+      <div class="header">
+        <div class="logo">ParkQueue</div>
+        <button class="logout-btn" onclick="logout()">
+          <span>🚪</span>
+          <span>Logout</span>
+        </button>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading" id="loadingState">
+        <div class="loading-spinner"></div>
+        <p>Loading your dashboard...</p>
+      </div>
+
+      <!-- Main Dashboard Content -->
+      <div class="dashboard-content" id="dashboardContent" style="display: none">
+        <!-- 2x2 Grid Layout -->
+        <div class="dashboard-grid">
+          <!-- Profile Box -->
+          <div class="box profile-box" onclick="navigateToProfile()">
+            <div class="profile-header">
+              <div class="user-avatar" id="userAvatar">KG</div>
+              <div class="user-info">
+                <h2 id="userName">Kenneth Gallaza</h2>
+                <div class="user-email" id="userEmail">kenneth@p.awaji.edu</div>
+              </div>
+            </div>
+
+            <div class="profile-details">
+              <div class="detail-row">
+                <span class="detail-label">Course</span>
+                <span class="detail-value" id="userCourse">BS Computer Science</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Year Level</span>
+                <span class="detail-value" id="userYear">3rd Year</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Vehicle Plate</span>
+                <span class="detail-value" id="vehiclePlate">ABC-123</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Account Status</span>
+                <span class="status-badge" id="userStatus">Verified</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Parking Box -->
+          <div class="box">
+            <div class="parking-header">
+              <h2>Parking Status</h2>
+              <div class="parking-subtitle">Real-time availability</div>
+            </div>
+
+            <!-- Available Spots -->
+            <div class="available-spots">
+              <div class="spots-number" id="availableSpots">8</div>
+              <div class="spots-label">Available Spots</div>
+              <div class="slots-info" id="slotsInfo">Out of 20 total slots</div>
+            </div>
+
+            <!-- Parking Status -->
+            <div class="parking-status status-not-parked" id="parkingStatus">
+              <div class="status-dot"></div>
+              <span id="statusText">NOT PARKED</span>
+            </div>
+
+            <!-- Current Slot Info -->
+            <div class="current-slot-info" id="currentSlotInfo">
+              <div class="slot-info-header">
+                <span>🚗</span>
+                <span>Currently Parked at: <strong id="currentSlotNumber">A-12</strong></span>
+              </div>
+              <div class="slot-info-details">
+                <span>⏰</span>
+                <span>Entry Time: <strong id="currentEntryTime">10:30 AM</strong></span>
+              </div>
+            </div>
+
+            <!-- Quick Park Button -->
+            <button class="quick-park-btn" id="quickParkBtn" onclick="navigateToParking()">
+              <span>🚗</span>
+              <span id="parkButtonText">PARK NOW</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <h3>Welcome to ParkQueue</h3>
+          <p>
+            Your smart parking solution. View real-time parking availability, 
+            check your current parking status, and manage your parking needs 
+            efficiently. For assistance, contact campus security.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import {
+        auth,
+        db,
+        doc,
+        getDoc,
+        setDoc,
+        collection,
+        query,
+        where,
+        getDocs,
+        onSnapshot,
+        Timestamp,
+        signOut,
+        onAuthStateChanged,
+      } from "../firebase.js";
+
+      console.log("Dashboard loaded");
+
+      // Global variables
+      let currentUser = null;
+      let isParked = false;
+      let currentSlotId = null;
+      let realtimeListeners = [];
+
+      // Navigation functions
+      function navigateToParking() {
+        console.log("Navigating to parking page...");
+        window.location.href = "../parking/parking.html";
+      }
+
+      function navigateToProfile() {
+        console.log("Navigating to profile page...");
+        window.location.href = "../profile/profile.html";
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDashboard();
+      });
+
+      async function initializeDashboard() {
+        try {
+          // Use onAuthStateChanged to wait for auth state
+          const user = await new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+              unsubscribe();
+              resolve(user);
+            });
+          });
+
+          if (!user) {
+            console.log("❌ No authenticated user - redirecting to login");
+            window.location.href = "../Login&Register.html";
+            return;
+          }
+
+          console.log("✅ Dashboard initialized for user:", user.email, "UID:", user.uid);
+          currentUser = user;
+
+          // Check if user needs verification
+          const needsVerification = await checkUserVerificationStatus(user);
+          if (needsVerification) {
+            console.log("🔄 User needs verification - redirecting to verification page");
+            window.location.href = "../userVerification/user-verification.html";
+            return;
+          }
+
+          // User is verified, show dashboard content
+          showDashboardContent();
+          await loadUserData(user);
+          await loadParkingStatus();
+          setupRealTimeListeners();
+
+        } catch (error) {
+          console.error("❌ Dashboard initialization error:", error);
+          window.location.href = "../Login&Register.html";
+        }
+      }
+
+      async function checkUserVerificationStatus(user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (!userDoc.exists()) {
+            console.log("❌ User document not found - needs verification");
+            return true;
+          }
+
+          const userData = userDoc.data();
+          return userData.admin_approved !== true;
+          
+        } catch (error) {
+          console.error("❌ Error checking verification status:", error);
+          return true;
+        }
+      }
+
+      function showDashboardContent() {
+        const loadingState = document.getElementById("loadingState");
+        const dashboardContent = document.getElementById("dashboardContent");
+
+        if (loadingState) loadingState.style.display = "none";
+        if (dashboardContent) dashboardContent.style.display = "block";
+      }
+
+      async function loadUserData(user) {
+        try {
+          const userDocRef = doc(db, "users", user.uid);
+          const userDoc = await getDoc(userDocRef);
+
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            updateUserUI(userData);
+            await loadPersonalInfo(user.uid);
+            await loadVehicleInfo(user.uid);
+          } else {
+            // Create user document if it doesn't exist
+            await setDoc(userDocRef, {
+              email: user.email,
+              username: user.email.split("@")[0],
+              first_name: "",
+              last_name: "",
+              is_verified: true,
+              email_verified: user.emailVerified || false,
+              created_at: Timestamp.now(),
+              updated_at: Timestamp.now(),
+              last_login: Timestamp.now(),
+              uid: user.uid,
+              admin_approved: true,
+            });
+            updateUserUI({
+              email: user.email,
+              first_name: "",
+              last_name: "",
+            });
+          }
+        } catch (error) {
+          console.error("❌ Error loading user data:", error);
+        }
+      }
+
+      async function loadPersonalInfo(userId) {
+        try {
+          const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", userId)
+          );
+          const snapshot = await getDocs(personalQuery);
+          
+          if (!snapshot.empty) {
+            const personalData = snapshot.docs[0].data();
+            document.getElementById("userCourse").textContent = 
+              personalData.course || "Not specified";
+            
+            if (personalData.year_level) {
+              const yearText = personalData.year_level === "1" ? "1st Year" :
+                             personalData.year_level === "2" ? "2nd Year" :
+                             personalData.year_level === "3" ? "3rd Year" :
+                             personalData.year_level === "4" ? "4th Year" :
+                             personalData.year_level + " Year";
+              document.getElementById("userYear").textContent = yearText;
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error loading personal info:", error);
+        }
+      }
+
+      async function loadVehicleInfo(userId) {
+        try {
+          const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", userId)
+          );
+          const snapshot = await getDocs(vehicleQuery);
+          
+          if (!snapshot.empty) {
+            const vehicleData = snapshot.docs[0].data();
+            document.getElementById("vehiclePlate").textContent = 
+              vehicleData.plate_number || "Not specified";
+          }
+        } catch (error) {
+          console.error("❌ Error loading vehicle info:", error);
+        }
+      }
+
+      async function loadParkingStatus() {
+        try {
+          // Check if user is currently parked
+          const activeSlotQuery = query(
+            collection(db, "parkingSlots"),
+            where("user_id", "==", currentUser.uid),
+            where("status", "==", "occupied")
+          );
+          
+          const snapshot = await getDocs(activeSlotQuery);
+          
+          if (!snapshot.empty) {
+            // User is parked
+            const slotDoc = snapshot.docs[0];
+            currentSlotId = slotDoc.id;
+            const slotData = slotDoc.data();
+            isParked = true;
+            updateParkingStatusUI(true, slotData);
+          } else {
+            // User is not parked
+            isParked = false;
+            currentSlotId = null;
+            updateParkingStatusUI(false);
+          }
+          
+          // Load parking statistics
+          await loadParkingStatistics();
+          
+        } catch (error) {
+          console.error("❌ Error loading parking status:", error);
+        }
+      }
+
+      async function loadParkingStatistics() {
+        try {
+          const slotsSnapshot = await getDocs(collection(db, "parkingSlots"));
+          
+          let total = 0;
+          let occupied = 0;
+          let available = 0;
+          
+          slotsSnapshot.forEach((doc) => {
+            const data = doc.data();
+            total++;
+            
+            if (data.status === "occupied") {
+              occupied++;
+            } else if (data.status === "available") {
+              available++;
+            }
+          });
+          
+          // Update UI
+          updateParkingCounterUI(total, occupied, available);
+          
+        } catch (error) {
+          console.error("❌ Error loading parking statistics:", error);
+        }
+      }
+
+      function updateUserUI(userData) {
+        const userName = document.getElementById("userName");
+        const userEmail = document.getElementById("userEmail");
+        const userAvatar = document.getElementById("userAvatar");
+        const userStatus = document.getElementById("userStatus");
+
+        if (userName) {
+          userName.textContent = userData.first_name && userData.last_name
+            ? `${userData.first_name} ${userData.last_name}`
+            : userData.username || userData.email.split('@')[0];
+        }
+        if (userEmail) {
+          userEmail.textContent = userData.email || "No email";
+        }
+        if (userAvatar) {
+          const name = userData.first_name || userData.username || userData.email[0];
+          userAvatar.textContent = name.charAt(0).toUpperCase();
+        }
+        if (userStatus) {
+          userStatus.textContent = userData.admin_approved === true ? "Verified" : "Pending";
+          userStatus.style.background = userData.admin_approved === true ? "#e8f5e9" : "#fff3e0";
+          userStatus.style.color = userData.admin_approved === true ? "#2e7d32" : "#f57c00";
+        }
+      }
+
+      function updateParkingStatusUI(parked, slotData = null) {
+        const parkingStatus = document.getElementById("parkingStatus");
+        const statusText = document.getElementById("statusText");
+        const quickParkBtn = document.getElementById("quickParkBtn");
+        const parkButtonText = document.getElementById("parkButtonText");
+        const currentSlotInfo = document.getElementById("currentSlotInfo");
+        const currentSlotNumber = document.getElementById("currentSlotNumber");
+        const currentEntryTime = document.getElementById("currentEntryTime");
+
+        if (parked) {
+          // User is parked
+          parkingStatus.className = "parking-status status-parked";
+          parkingStatus.innerHTML = '<div class="status-dot"></div><span id="statusText">PARKED</span>';
+          statusText.textContent = "PARKED";
+          
+          quickParkBtn.disabled = false;
+          parkButtonText.textContent = "EXIT PARKING";
+          
+          // Show current slot info
+          if (slotData) {
+            currentSlotInfo.classList.add("visible");
+            currentSlotNumber.textContent = slotData.slotId || "A-01";
+            if (slotData.entry_time) {
+              const time = slotData.entry_time.toDate();
+              currentEntryTime.textContent = formatTime(time);
+            }
+          }
+        } else {
+          // User is not parked
+          parkingStatus.className = "parking-status status-not-parked";
+          parkingStatus.innerHTML = '<div class="status-dot"></div><span id="statusText">NOT PARKED</span>';
+          statusText.textContent = "NOT PARKED";
+          
+          quickParkBtn.disabled = false;
+          parkButtonText.textContent = "PARK NOW";
+          
+          // Hide current slot info
+          currentSlotInfo.classList.remove("visible");
+        }
+      }
+
+      function updateParkingCounterUI(total, occupied, available) {
+        const availableSpots = document.getElementById("availableSpots");
+        const slotsInfo = document.getElementById("slotsInfo");
+        
+        // Update values
+        availableSpots.textContent = available;
+        slotsInfo.textContent = `Out of ${total} total slots`;
+        
+        // Update color based on availability
+        if (total === 0) {
+          availableSpots.className = "spots-number full";
+        } else if (available === 0) {
+          availableSpots.className = "spots-number full";
+          availableSpots.textContent = "FULL";
+        } else if (available <= Math.floor(total * 0.2)) {
+          availableSpots.className = "spots-number low";
+        } else {
+          availableSpots.className = "spots-number";
+        }
+      }
+
+      function formatTime(date) {
+        return date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      }
+
+      function setupRealTimeListeners() {
+        try {
+          // Listen for parking slots changes
+          const slotsListener = onSnapshot(collection(db, "parkingSlots"), (snapshot) => {
+            let total = 0;
+            let occupied = 0;
+            let available = 0;
+            
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              total++;
+              
+              if (data.status === "occupied") {
+                occupied++;
+              } else if (data.status === "available") {
+                available++;
+              }
+            });
+            
+            updateParkingCounterUI(total, occupied, available);
+            checkUserParkingStatus();
+          });
+          
+          realtimeListeners.push(slotsListener);
+          console.log("✅ Real-time listeners setup");
+          
+        } catch (error) {
+          console.error("❌ Error setting up real-time listeners:", error);
+        }
+      }
+
+      async function checkUserParkingStatus() {
+        try {
+          const activeSlotQuery = query(
+            collection(db, "parkingSlots"),
+            where("user_id", "==", currentUser.uid),
+            where("status", "==", "occupied")
+          );
+          
+          const snapshot = await getDocs(activeSlotQuery);
+          
+          if (!snapshot.empty && !isParked) {
+            // User just got parked
+            const slotDoc = snapshot.docs[0];
+            currentSlotId = slotDoc.id;
+            const slotData = slotDoc.data();
+            isParked = true;
+            updateParkingStatusUI(true, slotData);
+          } else if (snapshot.empty && isParked) {
+            // User just exited
+            isParked = false;
+            currentSlotId = null;
+            updateParkingStatusUI(false);
+          }
+          
+        } catch (error) {
+          console.error("❌ Error checking user parking status:", error);
+        }
+      }
+
+      // Logout function
+      async function logout() {
+        try {
+          console.log("🚪 Logging out...");
+          
+          // Clean up real-time listeners
+          realtimeListeners.forEach(unsubscribe => {
+            if (typeof unsubscribe === 'function') {
+              unsubscribe();
+            }
+          });
+          
+          await signOut(auth);
+          window.location.href = "../Login&Register.html";
+        } catch (error) {
+          console.error("❌ Logout error:", error);
+          alert("Logout failed: " + error.message);
+        }
+      }
+
+      // Make functions globally available
+      window.logout = logout;
+      window.navigateToParking = navigateToParking;
+      window.navigateToProfile = navigateToProfile;
+
+      // Monitor auth state changes
+      onAuthStateChanged(auth, (user) => {
+        if (!user) {
+          console.log("🔒 User signed out - monitoring auth state");
+        }
+      });
+    </script>
+  </body>
+</html>
