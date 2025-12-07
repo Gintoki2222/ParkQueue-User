@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkQueue - Parking</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        /* [Keep all the same CSS styles from previous version] */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2b9103 0%, #041203 53%, #6c7d00 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            color: #333;
+        }
+
+        .parking-status-card {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .status-not-parked {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .status-parked {
+            background: #FF9800;
+            color: white;
+        }
+
+        .status-indicator .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-not-parked .dot {
+            background: white;
+        }
+
+        .status-parked .dot {
+            background: white;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .park-btn {
+            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            color: white;
+            border: none;
+            padding: 20px 60px;
+            border-radius: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 400px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 6px 20px rgba(43, 145, 3, 0.3);
+        }
+
+        .park-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(43, 145, 3, 0.4);
+        }
+
+        .park-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .parking-instructions {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #2b9103;
+        }
+
+        .parking-instructions h3 {
+            color: #2b9103;
+            margin-bottom: 15px;
+        }
+
+        .instructions-list {
+            list-style-type: none;
+        }
+
+        .instructions-list li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instructions-list li::before {
+            content: "✓";
+            color: #2b9103;
+            font-weight: bold;
+        }
+
+        /* QR Code Display */
+        .qr-container {
+            display: none;
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .qr-code-wrapper {
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            display: inline-block;
+            border: 2px solid #2b9103;
+        }
+
+        #qrCode {
+            width: 200px;
+            height: 200px;
+        }
+
+        .qr-message {
+            font-size: 18px;
+            color: #2b9103;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .qr-instructions {
+            color: #666;
+            font-size: 14px;
+            margin-top: 15px;
+            line-height: 1.6;
+        }
+
+        /* Parking Info */
+        .parking-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-card h4 {
+            color: #2b9103;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Parking Counter Display */
+        .counter-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #2b9103;
+            margin-bottom: 20px;
+        }
+
+        .counter-value {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: color 0.3s ease;
+        }
+
+        .counter-value.available {
+            color: #2b9103;
+        }
+
+        .counter-value.low {
+            color: #FF9800;
+        }
+
+        .counter-value.full {
+            color: #F44336;
+        }
+
+        .counter-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .counter-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #2b9103;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Error Message */
+        .error-message {
+            display: none;
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #c62828;
+        }
+
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #2e7d32;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            margin-top: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-time {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .activity-type {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .activity-entry {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .activity-exit {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .parking-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .park-btn {
+                padding: 15px 30px;
+                font-size: 20px;
+            }
+
+            #qrCode {
+                width: 150px;
+                height: 150px;
+            }
+
+            .box {
+                padding: 20px;
+                margin: 0 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: 28px;
+            }
+
+            .park-btn {
+                padding: 12px 24px;
+                font-size: 18px;
+            }
+
+            .qr-code-wrapper {
+                padding: 15px;
+            }
+
+            #qrCode {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        /* Animation for parking status change */
+        @keyframes statusChange {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .status-changing {
+            animation: statusChange 0.5s ease;
+        }
+
+        /* Current Parking Slot */
+        .current-slot-card {
+            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(43, 145, 3, 0.3);
+        }
+
+        .current-slot-card.hidden {
+            display: none;
+        }
+
+        .slot-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .slot-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">ParkQueue</div>
+            <a href="../Dashboard/dashboard.html" class="back-btn">← Back to Dashboard</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Parking Status Box -->
+            <div class="box">
+                <!-- Current Parking Slot Info (if parked) -->
+                <div id="currentSlotCard" class="current-slot-card hidden">
+                    <div class="slot-label">Your Current Parking Slot</div>
+                    <div class="slot-number" id="currentSlotNumber">A-01</div>
+                    <div class="slot-label">Entry Time: <span id="entryTime">--:--</span></div>
+                </div>
+
+                <div class="parking-status-card">
+                    <div id="statusIndicator" class="status-indicator status-not-parked">
+                        <div class="dot"></div>
+                        <span id="statusText">NOT PARKED</span>
+                    </div>
+                    
+                    <h2>Welcome to Parking Area</h2>
+                    <p style="color: #666; margin: 10px 0 20px 0;">Tap the button below to generate your parking QR code</p>
+                    
+                    <button id="parkBtn" class="park-btn">PARK NOW</button>
+                    
+                    <div class="parking-instructions">
+                        <h3>How to Park:</h3>
+                        <ul class="instructions-list">
+                            <li>Click "PARK NOW" button to generate your QR code</li>
+                            <li>Show the QR code to security guard for scanning</li>
+                            <li>Guard will verify and grant entry to parking area</li>
+                            <li>When leaving, click the button again to generate exit QR</li>
+                            <li>Show exit QR to guard for scanning before leaving</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- QR Code Display -->
+                <div id="qrContainer" class="qr-container">
+                    <h3 style="color: #2b9103;">Your Parking QR Code</h3>
+                    <div class="qr-code-wrapper">
+                        <div id="qrCode"></div>
+                    </div>
+                    <div id="qrMessage" class="qr-message">Please show to CDM guard to be scanned</div>
+                    <div class="qr-instructions">
+                        This QR contains your unique parking session information.<br>
+                        Do not share this code with others.
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Processing your request...</p>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message">
+                    <strong>Error:</strong> <span id="errorText"></span>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message">
+                    <strong>Success!</strong> <span id="successText"></span>
+                </div>
+            </div>
+
+            <!-- Parking Information -->
+            <div class="box">
+                <h3 style="color: #2b9103; margin-bottom: 20px;">Parking Information</h3>
+                
+                <!-- Real-time Parking Counter -->
+                <div class="counter-card">
+                    <div class="counter-label">Available Parking Slots</div>
+                    <div id="availableSlotsCounter" class="counter-value available">0</div>
+                    <div class="counter-stats">
+                        <div class="stat-item">
+                            <div class="stat-number" id="occupiedSlots">0</div>
+                            <div class="stat-label">Occupied</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number" id="totalSlots">0</div>
+                            <div class="stat-label">Total Slots</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Status Info -->
+                <div class="parking-info-grid">
+                    <div class="info-card">
+                        <h4>🅿️ Available Spots</h4>
+                        <div class="info-value" id="availableSpots">8</div>
+                        <div class="info-label">Real-time availability</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h4>⏱️ Current Time</h4>
+                        <div class="info-value" id="currentTime">--:-- --</div>
+                        <div class="info-label" id="currentDate">-- --- ----</div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h4>🚗 Your Status</h4>
+                        <div class="info-value" id="userStatus">Not Parked</div>
+                        <div class="info-label" id="lastParkTime">Never parked</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div style="margin-top: 30px;">
+                    <h4 style="color: #2b9103; margin-bottom: 15px;">Recent Activity</h4>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <span>No recent activity</span>
+                            <span class="activity-time">--:-- --</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules - CORRECTED for Firebase v10.7.1
+        import {
+            auth,
+            db,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            Timestamp,
+            onAuthStateChanged,
+            getOptimizedQRData,
+            onSnapshot  // This is the correct way to import onSnapshot in v10
+        } from "../firebase.js";
+
+        // Global variables
+        let currentUser = null;
+        let isParked = false;
+        let currentSlotId = null;
+        let currentSlotData = null;
+        let realtimeListeners = [];
+
+        // DOM Elements
+        const parkBtn = document.getElementById('parkBtn');
+        const qrContainer = document.getElementById('qrContainer');
+        const qrCodeDiv = document.getElementById('qrCode');
+        const qrMessage = document.getElementById('qrMessage');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const availableSpots = document.getElementById('availableSpots');
+        const availableSlotsCounter = document.getElementById('availableSlotsCounter');
+        const occupiedSlots = document.getElementById('occupiedSlots');
+        const totalSlots = document.getElementById('totalSlots');
+        const userStatus = document.getElementById('userStatus');
+        const lastParkTime = document.getElementById('lastParkTime');
+        const loadingState = document.getElementById('loadingState');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const errorText = document.getElementById('errorText');
+        const successText = document.getElementById('successText');
+        const activityList = document.getElementById('activityList');
+        const currentTimeEl = document.getElementById('currentTime');
+        const currentDateEl = document.getElementById('currentDate');
+        const currentSlotCard = document.getElementById('currentSlotCard');
+        const currentSlotNumber = document.getElementById('currentSlotNumber');
+        const entryTimeEl = document.getElementById('entryTime');
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚗 Parking page loaded');
+            await initializeParkingPage();
+            startClock();
+        });
+
+        // Initialize parking page
+        async function initializeParkingPage() {
+            try {
+                showLoading();
+                
+                // Wait for auth state
+                currentUser = await new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        unsubscribe();
+                        resolve(user);
+                    });
+                });
+
+                if (!currentUser) {
+                    console.log('❌ No user logged in - redirecting');
+                    window.location.href = '../Login&Register.html';
+                    return;
+                }
+
+                console.log('✅ User authenticated:', currentUser.uid);
+
+                // Check if user is approved
+                const isApproved = await checkUserApproval();
+                if (!isApproved) {
+                    showError('Your account is pending admin approval. Please complete your profile verification.');
+                    parkBtn.disabled = true;
+                    parkBtn.textContent = 'ACCOUNT PENDING APPROVAL';
+                    return;
+                }
+
+                // Load user parking status
+                await loadParkingStatus();
+                
+                // Setup real-time parking slots listener
+                setupParkingSlotsListener();
+                
+                // Setup real-time parking history listener
+                setupParkingHistoryListener();
+
+                hideLoading();
+                setupEventListeners();
+
+            } catch (error) {
+                console.error('❌ Initialization error:', error);
+                showError('Failed to load parking system. Please try again.');
+                hideLoading();
+            }
+        }
+
+        // Check if user is approved by admin
+        async function checkUserApproval() {
+            try {
+                const userDocRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    return userData.admin_approved === true;
+                }
+                return false;
+            } catch (error) {
+                console.error('❌ Error checking approval:', error);
+                return false;
+            }
+        }
+
+        // Load user's parking status
+        async function loadParkingStatus() {
+            try {
+                // Check parkingSlots collection for user's active slot
+                const activeSlotQuery = query(
+                    collection(db, "parkingSlots"),
+                    where("user_id", "==", currentUser.uid),
+                    where("status", "==", "occupied")
+                );
+                
+                const snapshot = await getDocs(activeSlotQuery);
+                
+                if (!snapshot.empty) {
+                    // User has an active parking slot
+                    const slotDoc = snapshot.docs[0];
+                    currentSlotId = slotDoc.id;
+                    currentSlotData = slotDoc.data();
+                    isParked = true;
+                    
+                    updateParkingStatusUI(true, currentSlotData.entry_time);
+                    
+                    // Show current slot card
+                    currentSlotCard.classList.remove('hidden');
+                    currentSlotNumber.textContent = currentSlotData.slotId || 'A-01';
+                    if (currentSlotData.entry_time) {
+                        const time = currentSlotData.entry_time.toDate();
+                        entryTimeEl.textContent = formatTime(time);
+                    }
+                    
+                    parkBtn.textContent = 'PARKED - TAP TO EXIT';
+                    parkBtn.style.background = 'linear-gradient(135deg, #FF9800, #FF5722)';
+                } else {
+                    // No active slot
+                    isParked = false;
+                    currentSlotId = null;
+                    currentSlotData = null;
+                    updateParkingStatusUI(false);
+                    
+                    // Hide current slot card
+                    currentSlotCard.classList.add('hidden');
+                    
+                    parkBtn.textContent = 'PARK NOW';
+                    parkBtn.style.background = 'linear-gradient(135deg, #2b9103, #4CAF50)';
+                    parkBtn.disabled = false;
+                }
+                
+                // Load recent activity
+                await loadRecentActivity();
+                
+            } catch (error) {
+                console.error('❌ Error loading parking status:', error);
+                showError('Failed to load parking status');
+            }
+        }
+
+        // Setup real-time parking slots listener
+        function setupParkingSlotsListener() {
+            try {
+                // Listen to ALL parking slots for availability updates
+                const unsubscribe = onSnapshot(collection(db, "parkingSlots"), (snapshot) => {
+                    let total = 0;
+                    let occupied = 0;
+                    let available = 0;
+                    
+                    snapshot.forEach((doc) => {
+                        const data = doc.data();
+                        total++;
+                        
+                        if (data.status === "occupied") {
+                            occupied++;
+                        } else if (data.status === "available") {
+                            available++;
+                        }
+                    });
+                    
+                    // Update UI with new counts
+                    updateParkingCounterUI(total, occupied, available);
+                    
+                    // Check if current user's slot status changed
+                    checkUserSlotStatus();
+                });
+                
+                realtimeListeners.push(unsubscribe);
+                console.log('✅ Parking slots listener setup');
+                
+            } catch (error) {
+                console.error('❌ Error setting up parking slots listener:', error);
+            }
+        }
+
+        // Check if user's slot status changed
+        async function checkUserSlotStatus() {
+            try {
+                const activeSlotQuery = query(
+                    collection(db, "parkingSlots"),
+                    where("user_id", "==", currentUser.uid),
+                    where("status", "==", "occupied")
+                );
+                
+                const snapshot = await getDocs(activeSlotQuery);
+                
+                if (!snapshot.empty && !isParked) {
+                    // User just got parked (admin scanned entry)
+                    await loadParkingStatus();
+                    hideQRCode();
+                    showSuccess('Entry confirmed! You are now parked.');
+                } else if (snapshot.empty && isParked) {
+                    // User just exited (admin scanned exit)
+                    await loadParkingStatus();
+                    showSuccess('Exit confirmed! Parking session completed.');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error checking user slot:', error);
+            }
+        }
+
+        // Setup real-time parking history listener
+        function setupParkingHistoryListener() {
+            try {
+                const historyQuery = query(
+                    collection(db, "parkingHistory"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                
+                const unsubscribe = onSnapshot(historyQuery, (snapshot) => {
+                    loadRecentActivity(); // Reload activity when new history is added
+                });
+                
+                realtimeListeners.push(unsubscribe);
+                console.log('✅ Parking history listener setup');
+                
+            } catch (error) {
+                console.error('❌ Error setting up history listener:', error);
+            }
+        }
+
+        // Update parking status UI
+        function updateParkingStatusUI(parked, entryTime = null) {
+            // Animate status change
+            statusIndicator.classList.add('status-changing');
+            setTimeout(() => {
+                statusIndicator.classList.remove('status-changing');
+            }, 500);
+
+            if (parked) {
+                statusIndicator.className = 'status-indicator status-parked';
+                statusIndicator.innerHTML = '<div class="dot"></div><span id="statusText">PARKED</span>';
+                userStatus.textContent = 'Parked';
+                statusText.textContent = 'PARKED';
+                
+                if (entryTime) {
+                    const time = entryTime.toDate();
+                    lastParkTime.textContent = `Since ${formatTime(time)}`;
+                }
+            } else {
+                statusIndicator.className = 'status-indicator status-not-parked';
+                statusIndicator.innerHTML = '<div class="dot"></div><span id="statusText">NOT PARKED</span>';
+                userStatus.textContent = 'Not Parked';
+                statusText.textContent = 'NOT PARKED';
+                lastParkTime.textContent = 'Never parked';
+            }
+        }
+
+        // Update parking counter UI
+        function updateParkingCounterUI(total, occupied, available) {
+            // Update counter display
+            availableSpots.textContent = available;
+            occupiedSlots.textContent = occupied;
+            totalSlots.textContent = total;
+            availableSlotsCounter.textContent = available;
+            
+            // Update color based on availability
+            const counterValue = document.getElementById('availableSlotsCounter');
+            counterValue.className = 'counter-value';
+            
+            if (total === 0) {
+                counterValue.classList.add('full');
+            } else if (available === 0) {
+                counterValue.classList.add('full');
+                counterValue.textContent = 'FULL';
+            } else if (available <= Math.floor(total * 0.2)) {
+                counterValue.classList.add('low'); // 20% or less available
+            } else {
+                counterValue.classList.add('available');
+            }
+        }
+
+        // Load recent parking activity
+        async function loadRecentActivity() {
+            try {
+                const activityQuery = query(
+                    collection(db, "parkingHistory"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                
+                const snapshot = await getDocs(activityQuery);
+                activityList.innerHTML = '';
+                
+                if (snapshot.empty) {
+                    activityList.innerHTML = '<div class="activity-item"><span>No recent activity</span><span class="activity-time">--:-- --</span></div>';
+                    return;
+                }
+                
+                // Sort by timestamp descending (last 5 entries)
+                const activities = snapshot.docs
+                    .map(doc => ({ id: doc.id, ...doc.data() }))
+                    .sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate())
+                    .slice(0, 5);
+                
+                activities.forEach(activity => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    
+                    const time = activity.timestamp.toDate();
+                    const typeClass = activity.action === 'entry' ? 'activity-entry' : 'activity-exit';
+                    const typeText = activity.action === 'entry' ? 'ENTRY' : 'EXIT';
+                    
+                    item.innerHTML = `
+                        <span>${activity.action === 'entry' ? 'Parked in' : 'Left'} ${activity.parking_slot || 'Parking Area'}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="activity-type ${typeClass}">${typeText}</span>
+                            <span class="activity-time">${formatTime(time)}</span>
+                        </div>
+                    `;
+                    
+                    activityList.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('❌ Error loading activity:', error);
+                activityList.innerHTML = '<div class="activity-item"><span>Error loading activity</span><span class="activity-time">--:-- --</span></div>';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            parkBtn.addEventListener('click', handleParkButton);
+        }
+
+        // Handle park button click
+        async function handleParkButton() {
+            try {
+                showLoading();
+                hideMessages();
+                
+                if (!isParked) {
+                    // Starting new parking session - Generate Entry QR
+                    await generateEntryQR();
+                } else {
+                    // Ending parking session - Generate Exit QR
+                    await generateExitQR();
+                }
+                
+                hideLoading();
+            } catch (error) {
+                console.error('❌ Parking action error:', error);
+                showError(error.message || 'Failed to process parking request');
+                hideLoading();
+            }
+        }
+
+        // Generate Entry QR Code
+        async function generateEntryQR() {
+            try {
+                // Get user data for QR code
+                const userData = await getOptimizedQRData();
+                if (!userData) {
+                    throw new Error('Cannot generate QR code. Please complete your profile.');
+                }
+
+                // Create QR data for entry
+                const qrData = {
+                    // User identification
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    
+                    // User personal info (from getOptimizedQRData)
+                    ...userData,
+                    
+                    // Parking request info
+                    action: 'entry',
+                    timestamp: Date.now(),
+                    type: 'parking_request',
+                    
+                    // Additional verification data
+                    request_id: `ENTRY_${currentUser.uid}_${Date.now()}`,
+                    status: 'pending'
+                };
+
+                // Generate QR code
+                await generateQRCode(JSON.stringify(qrData));
+                
+                // Update UI
+                qrMessage.textContent = 'Please show to CDM guard to be scanned';
+                showSuccess('QR code generated. Show to guard for entry.');
+                
+                // Disable park button while QR is displayed
+                parkBtn.disabled = true;
+                parkBtn.textContent = 'QR CODE DISPLAYED';
+
+            } catch (error) {
+                console.error('❌ Error generating entry QR:', error);
+                throw error;
+            }
+        }
+
+        // Generate Exit QR Code
+        async function generateExitQR() {
+            try {
+                if (!currentSlotId) {
+                    throw new Error('No active parking session found.');
+                }
+
+                // Get user data for QR code
+                const userData = await getOptimizedQRData();
+                if (!userData) {
+                    throw new Error('Cannot generate QR code. Please complete your profile.');
+                }
+
+                // Create QR data for exit
+                const qrData = {
+                    // User identification
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    
+                    // User personal info (from getOptimizedQRData)
+                    ...userData,
+                    
+                    // Parking exit info
+                    action: 'exit',
+                    timestamp: Date.now(),
+                    type: 'exit_request',
+                    
+                    // Slot information
+                    slot_id: currentSlotId,
+                    slot_number: currentSlotData?.slotId || 'Unknown',
+                    
+                    // Additional verification data
+                    request_id: `EXIT_${currentUser.uid}_${Date.now()}`,
+                    status: 'pending'
+                };
+
+                // Generate QR code
+                await generateQRCode(JSON.stringify(qrData));
+                
+                // Update UI
+                qrMessage.textContent = 'To exit, show this again to security guard';
+                showSuccess('Exit QR code generated. Show to guard when leaving.');
+                
+                // Disable park button while QR is displayed
+                parkBtn.disabled = true;
+                parkBtn.textContent = 'EXIT QR DISPLAYED';
+
+            } catch (error) {
+                console.error('❌ Error generating exit QR:', error);
+                throw error;
+            }
+        }
+
+       // Generate QR code
+// Generate QR code - SIMPLER VERSION
+async function generateQRCode(data) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Clear previous QR code
+            qrCodeDiv.innerHTML = '';
+            
+            // Check if QRCode constructor is available
+            if (typeof QRCode === 'undefined') {
+                // Try loading the library dynamically
+                loadQRCodeLibrary().then(() => {
+                    createQRCode(data, resolve, reject);
+                }).catch(err => {
+                    reject(new Error('QRCode library failed to load: ' + err.message));
+                });
+            } else {
+                createQRCode(data, resolve, reject);
+            }
+        } catch (error) {
+            console.error('❌ QR code error:', error);
+            reject(error);
+        }
+    });
+}
+
+// Helper function to load QRCode library
+function loadQRCodeLibrary() {
+    return new Promise((resolve, reject) => {
+        // Check if already loaded
+        if (typeof QRCode !== 'undefined') {
+            resolve();
+            return;
+        }
+        
+        // Load the library
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load QRCode library'));
+        document.head.appendChild(script);
+    });
+}
+
+// Helper function to create QR code
+function createQRCode(data, resolve, reject) {
+    try {
+        qrCodeDiv.innerHTML = '';
+        
+        // Create QR code using constructor method (most reliable)
+        new QRCode(qrCodeDiv, {
+            text: data,
+            width: 200,
+            height: 200,
+            colorDark: "#2b9103",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Show QR container
+        qrContainer.style.display = 'block';
+        resolve();
+    } catch (error) {
+        console.error('❌ QR creation error:', error);
+        reject(error);
+    }
+}
+
+        // Hide QR code
+        function hideQRCode() {
+            qrContainer.style.display = 'none';
+            
+            // Re-enable park button
+            if (isParked) {
+                parkBtn.disabled = false;
+                parkBtn.textContent = 'PARKED - TAP TO EXIT';
+            } else {
+                parkBtn.disabled = false;
+                parkBtn.textContent = 'PARK NOW';
+            }
+        }
+
+        // Show loading state
+        function showLoading() {
+            loadingState.style.display = 'block';
+            parkBtn.disabled = true;
+        }
+
+        // Hide loading state
+        function hideLoading() {
+            loadingState.style.display = 'none';
+        }
+
+        // Show error message
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            successText.textContent = message;
+            successMessage.style.display = 'block';
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
+
+        // Hide all messages
+        function hideMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // Format time for display
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+        }
+
+        // Format date for display
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        // Start clock
+        function startClock() {
+            function updateClock() {
+                const now = new Date();
+                currentTimeEl.textContent = formatTime(now);
+                currentDateEl.textContent = formatDate(now);
+            }
+            
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            // Clean up all Firebase listeners
+            realtimeListeners.forEach(unsubscribe => {
+                if (typeof unsubscribe === 'function') {
+                    unsubscribe();
+                }
+            });
+        });
+
+        // Allow user to manually hide QR code by clicking outside
+        document.addEventListener('click', (event) => {
+            if (qrContainer.style.display === 'block' && 
+                !qrContainer.contains(event.target) && 
+                event.target !== parkBtn) {
+                hideQRCode();
+            }
+        });
+
+    </script>
+</body>
+</html>
