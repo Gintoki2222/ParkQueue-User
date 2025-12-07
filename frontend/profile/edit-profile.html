@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - ParkQueue</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2b9103 0%, #041203 53%, #6c7d00 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-info {
+            text-align: center;
+            flex: 1;
+        }
+
+        .header-info h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        /* Glass Card Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Card Styling */
+        .info-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            color: #2b9103;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f5e9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Grid Layout */
+        .personal-grid, .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .info-row:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .info-label .required {
+            color: #e74c3c;
+            font-size: 10px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            transition: all 0.3s;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2b9103;
+            box-shadow: 0 0 0 3px rgba(43, 145, 3, 0.1);
+        }
+
+        .form-input:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.7;
+            color: #666;
+        }
+
+        select.form-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232b9103' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 10px;
+            padding-right: 35px;
+        }
+
+        textarea.form-input {
+            min-height: 80px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 2px solid #e8f5e9;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            color: white;
+            box-shadow: 0 4px 15px rgba(43, 145, 3, 0.2);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(43, 145, 3, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #2b9103;
+            border: 2px solid #2b9103;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: #2b9103;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            border: 2px solid #ddd;
+        }
+
+        /* Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+        }
+
+        .alert-success { 
+            background: rgba(16, 185, 129, 0.95); 
+        }
+        .alert-error { 
+            background: rgba(239, 68, 68, 0.95); 
+        }
+        .alert-warning { 
+            background: rgba(245, 158, 11, 0.95); 
+        }
+        .alert-info { 
+            background: rgba(52, 152, 219, 0.95); 
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Help Text */
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+            font-style: italic;
+        }
+
+        /* Validation */
+        .form-input.error {
+            border-color: #e74c3c;
+            background: #fff5f5;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-input.error + .error-message {
+            display: block;
+        }
+
+        /* Full width for some fields */
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+
+            .back-btn {
+                align-self: flex-start;
+                width: auto;
+            }
+
+            .logo {
+                font-size: 28px;
+                order: -1;
+            }
+
+            .header-info {
+                order: -2;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .personal-grid, .vehicle-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card {
+                padding: 20px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .header-info h1 {
+                font-size: 24px;
+            }
+
+            .info-card {
+                padding: 15px;
+            }
+
+            .card-title {
+                font-size: 18px;
+            }
+
+            .form-input {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+
+            .alert {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+        }
+
+        /* Hover Effects */
+        .form-input:hover:not(:disabled):not(.error) {
+            border-color: #2b9103;
+        }
+
+        /* Focus States */
+        .form-input:focus-visible {
+            outline: 2px solid #2b9103;
+            outline-offset: 2px;
+        }
+
+        /* Smooth transitions */
+        * {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="back-btn" onclick="goToProfile()">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Profile</span>
+            </button>
+            
+            <div class="logo">ParkQueue</div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Loading profile data...</p>
+        </div>
+
+        <!-- Edit Form -->
+        <div id="editForm" style="display: none;">
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <!-- Personal Information -->
+                <div class="glass-card">
+                    <div class="card-title">
+                        <i class="fas fa-user"></i>
+                        Personal Information
+                    </div>
+                    
+                    <div class="personal-grid">
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-id-card"></i>
+                                First Name <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="firstName" required>
+                            <span class="error-message">Please enter your first name</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-id-card"></i>
+                                Last Name <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="lastName" required>
+                            <span class="error-message">Please enter your last name</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-id-card"></i>
+                                Middle Name
+                            </label>
+                            <input type="text" class="form-input" id="middleName">
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-envelope"></i>
+                                Email Address
+                            </label>
+                            <input type="email" class="form-input" id="email" disabled>
+                            <span class="help-text">Email cannot be changed</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-phone"></i>
+                                Phone Number <span class="required">*</span>
+                            </label>
+                            <input type="tel" class="form-input" id="contactNumber" placeholder="0923-123-4567" required>
+                            <span class="error-message">Please enter your phone number</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-graduation-cap"></i>
+                                Student ID <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="studentId" placeholder="2021-12345" required>
+                            <span class="error-message">Please enter your student ID</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-book"></i>
+                                Course <span class="required">*</span>
+                            </label>
+                            <select class="form-input" id="course" required>
+                                <option value="">Select Course</option>
+                                <option value="BSIT">(BSIT) Bachelor of Science in Information Technology</option>
+                                <option value="BSBA">(BSBA) Bachelor of Science in Business Administration</option>
+                                <option value="BTLEd">(BTLEd) Bachelor of Technology and Livelihood Education</option>
+                                <option value="BSEd">(BSEd) Bachelor of Secondary Education</option>
+                                <option value="BSCPE">(BSCPE) Bachelor of Science in Computer Engineering</option> 
+                            </select>
+                            <span class="error-message">Please select your course</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-calendar-alt"></i>
+                                Year Level <span class="required">*</span>
+                            </label>
+                            <select class="form-input" id="yearLevel" required>
+                                <option value="">Select Year</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                                <option value="5">5th Year</option>
+                            </select>
+                            <span class="error-message">Please select your year level</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-users"></i>
+                                Section <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="section" placeholder="3D" required>
+                            <span class="error-message">Please enter your section</span>
+                        </div>
+                        
+                        <div class="info-row full-width">
+                            <label class="info-label">
+                                <i class="fas fa-map-marker-alt"></i>
+                                Complete Address <span class="required">*</span>
+                            </label>
+                            <textarea class="form-input" id="address" placeholder="Enter your complete address" required rows="3"></textarea>
+                            <span class="error-message">Please enter your complete address</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information -->
+                <div class="glass-card">
+                    <div class="card-title">
+                        <i class="fas fa-motorcycle"></i>
+                        Vehicle Information
+                    </div>
+                    
+                    <div class="vehicle-grid">
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-tag"></i>
+                                Vehicle Brand <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="vehicleBrand" placeholder="Honda, Yamaha, etc." required>
+                            <span class="error-message">Please enter vehicle brand</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-cog"></i>
+                                Vehicle Model <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="vehicleModel" placeholder="Click 125i, Mio, etc." required>
+                            <span class="error-message">Please enter vehicle model</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-car"></i>
+                                Plate Number <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="plateNumber" placeholder="ABC1234" required style="text-transform: uppercase;">
+                            <span class="error-message">Please enter plate number</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-bicycle"></i>
+                                Vehicle Type <span class="required">*</span>
+                            </label>
+                            <select class="form-input" id="vehicleType" required>
+                                <option value="">Select Type</option>
+                                <option value="Scooter">Scooter</option>
+                                <option value="Underbone">Underbone</option>
+                                <option value="Sport">Sport</option>
+                                <option value="Cruiser">Cruiser</option>
+                                <option value="Standard">Standard</option>
+                            </select>
+                            <span class="error-message">Please select vehicle type</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-palette"></i>
+                                Vehicle Color <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="vehicleColor" placeholder="Red, Blue, Black, etc." required>
+                            <span class="error-message">Please enter vehicle color</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-id-badge"></i>
+                                License Number <span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" id="licenseNumber" placeholder="N01-12-123456" required>
+                            <span class="error-message">Please enter license number</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <label class="info-label">
+                                <i class="fas fa-calendar-times"></i>
+                                License Expiry <span class="required">*</span>
+                            </label>
+                            <input type="date" class="form-input" id="licenseExpiry" required>
+                            <span class="error-message">Please select license expiry date</span>
+                            <span class="help-text">License must be valid (not expired)</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons at the bottom of Vehicle Information -->
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="discardChanges()">
+                            <i class="fas fa-times"></i> Discard Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alertContainer"></div>
+
+    <script type="module">
+        import {
+            auth,
+            db,
+            doc,
+            getDoc,
+            updateDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            Timestamp,
+            onAuthStateChanged,
+            addDoc
+        } from "../firebase.js";
+
+        let currentUser = null;
+        let personalInfoDocId = null;
+        let vehicleInfoDocId = null;
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("🔧 Initializing edit profile page...");
+            initializePage();
+        });
+
+        async function initializePage() {
+            try {
+                // Wait for authentication
+                currentUser = await new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        unsubscribe();
+                        resolve(user);
+                    });
+                });
+
+                if (!currentUser) {
+                    showAlert('Please log in to edit your profile', 'error');
+                    setTimeout(() => window.location.href = "../Login&Register.html", 2000);
+                    return;
+                }
+
+                console.log("✅ User authenticated:", currentUser.email);
+                await loadProfileData();
+                
+            } catch (error) {
+                console.error("❌ Initialization failed:", error);
+                showAlert("Failed to load profile: " + error.message, 'error');
+            }
+        }
+
+        async function loadProfileData() {
+            try {
+                console.log("📥 Loading profile data...");
+
+                // Get user document
+                const userRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    showAlert("Profile not found. Please complete your registration.", 'warning');
+                    setTimeout(() => window.location.href = "../dashboard/dashboard.html", 3000);
+                    return;
+                }
+
+                // Get personal information
+                const personalQuery = query(
+                    collection(db, "personalInfo"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                const personalSnapshot = await getDocs(personalQuery);
+                
+                let personalInfo = {};
+                if (!personalSnapshot.empty) {
+                    personalInfoDocId = personalSnapshot.docs[0].id;
+                    personalInfo = personalSnapshot.docs[0].data();
+                }
+
+                // Get vehicle information
+                const vehicleQuery = query(
+                    collection(db, "motorInfo"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                const vehicleSnapshot = await getDocs(vehicleQuery);
+                
+                let vehicleInfo = {};
+                if (!vehicleSnapshot.empty) {
+                    vehicleInfoDocId = vehicleSnapshot.docs[0].id;
+                    vehicleInfo = vehicleSnapshot.docs[0].data();
+                }
+
+                // Populate form
+                populateForm(personalInfo, vehicleInfo);
+                
+                // Show form
+                document.getElementById("loadingState").style.display = "none";
+                document.getElementById("editForm").style.display = "block";
+                
+                console.log("✅ Profile data loaded");
+                
+            } catch (error) {
+                console.error("❌ Error loading profile:", error);
+                showAlert("Failed to load profile data: " + error.message, 'error');
+            }
+        }
+
+        function populateForm(personalInfo, vehicleInfo) {
+            // Personal Information
+            document.getElementById("firstName").value = personalInfo.first_name || "";
+            document.getElementById("lastName").value = personalInfo.last_name || "";
+            document.getElementById("middleName").value = personalInfo.middle_name || "";
+            document.getElementById("email").value = currentUser.email || "";
+            document.getElementById("contactNumber").value = personalInfo.contact_number || "";
+            document.getElementById("studentId").value = personalInfo.student_id || "";
+            document.getElementById("course").value = personalInfo.course || "";
+            document.getElementById("yearLevel").value = personalInfo.year_level || "";
+            document.getElementById("section").value = personalInfo.section || "";
+            document.getElementById("address").value = personalInfo.address || "";
+
+            // Vehicle Information
+            document.getElementById("vehicleBrand").value = vehicleInfo.motorcycle_brand || vehicleInfo.brand || "";
+            document.getElementById("vehicleModel").value = vehicleInfo.motorcycle_model || vehicleInfo.model || "";
+            document.getElementById("plateNumber").value = vehicleInfo.plate_number || "";
+            document.getElementById("vehicleType").value = vehicleInfo.motorcycle_type || vehicleInfo.type || "";
+            document.getElementById("vehicleColor").value = vehicleInfo.motorcycle_color || vehicleInfo.color || "";
+            document.getElementById("licenseNumber").value = vehicleInfo.license_number || "";
+            
+            // License Expiry
+            if (vehicleInfo.license_expiry) {
+                const expiryDate = vehicleInfo.license_expiry.toDate ? 
+                    vehicleInfo.license_expiry.toDate() : 
+                    new Date(vehicleInfo.license_expiry);
+                document.getElementById("licenseExpiry").value = expiryDate.toISOString().split('T')[0];
+            } else {
+                // Set default to 1 year from now
+                const nextYear = new Date();
+                nextYear.setFullYear(nextYear.getFullYear() + 1);
+                document.getElementById("licenseExpiry").value = nextYear.toISOString().split('T')[0];
+            }
+        }
+
+        async function saveProfile(event) {
+            event.preventDefault();
+            
+            try {
+                const saveBtn = document.getElementById("saveBtn");
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                showAlert('Saving profile changes...', 'info');
+
+                // Validate form first
+                if (!validateForm()) {
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+                    return;
+                }
+
+                // Get form data
+                const personalData = {
+                    first_name: document.getElementById("firstName").value.trim(),
+                    last_name: document.getElementById("lastName").value.trim(),
+                    middle_name: document.getElementById("middleName").value.trim(),
+                    contact_number: document.getElementById("contactNumber").value.trim(),
+                    student_id: document.getElementById("studentId").value.trim(),
+                    course: document.getElementById("course").value,
+                    year_level: document.getElementById("yearLevel").value,
+                    section: document.getElementById("section").value.trim(),
+                    address: document.getElementById("address").value.trim(),
+                    user_id: currentUser.uid,
+                    updated_at: Timestamp.now()
+                };
+
+                const vehicleData = {
+                    motorcycle_brand: document.getElementById("vehicleBrand").value.trim(),
+                    motorcycle_model: document.getElementById("vehicleModel").value.trim(),
+                    plate_number: document.getElementById("plateNumber").value.trim().toUpperCase(),
+                    motorcycle_type: document.getElementById("vehicleType").value,
+                    motorcycle_color: document.getElementById("vehicleColor").value.trim(),
+                    license_number: document.getElementById("licenseNumber").value.trim(),
+                    license_expiry: Timestamp.fromDate(new Date(document.getElementById("licenseExpiry").value)),
+                    user_id: currentUser.uid,
+                    updated_at: Timestamp.now()
+                };
+
+                // Update personal info
+                if (personalInfoDocId) {
+                    await updateDoc(doc(db, "personalInfo", personalInfoDocId), personalData);
+                } else {
+                    personalData.created_at = Timestamp.now();
+                    const docRef = await addDoc(collection(db, "personalInfo"), personalData);
+                    personalInfoDocId = docRef.id;
+                }
+
+                // Update vehicle info
+                if (vehicleInfoDocId) {
+                    await updateDoc(doc(db, "motorInfo", vehicleInfoDocId), vehicleData);
+                } else {
+                    vehicleData.created_at = Timestamp.now();
+                    const docRef = await addDoc(collection(db, "motorInfo"), vehicleData);
+                    vehicleInfoDocId = docRef.id;
+                }
+
+                console.log("✅ Profile updated successfully");
+                showAlert('Profile updated successfully!', 'success');
+
+                // Redirect back to profile after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error("❌ Error saving profile:", error);
+                showAlert('Error saving profile: ' + error.message, 'error');
+                
+                const saveBtn = document.getElementById("saveBtn");
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Reset all error states
+            document.querySelectorAll('.form-input').forEach(input => {
+                input.classList.remove('error');
+                const errorSpan = input.nextElementSibling;
+                if (errorSpan && errorSpan.classList.contains('error-message')) {
+                    errorSpan.style.display = 'none';
+                }
+            });
+
+            // Validate required fields
+            const requiredFields = [
+                'firstName', 'lastName', 'contactNumber', 'studentId', 
+                'course', 'yearLevel', 'section', 'address',
+                'vehicleBrand', 'vehicleModel', 'plateNumber', 
+                'vehicleType', 'vehicleColor', 'licenseNumber', 'licenseExpiry'
+            ];
+
+            requiredFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (!field.value.trim()) {
+                    field.classList.add('error');
+                    const errorSpan = field.nextElementSibling;
+                    if (errorSpan && errorSpan.classList.contains('error-message')) {
+                        errorSpan.style.display = 'block';
+                    }
+                    isValid = false;
+                }
+            });
+
+            // Validate license expiry date
+            const expiryDate = new Date(document.getElementById("licenseExpiry").value);
+            if (expiryDate < new Date()) {
+                const expiryField = document.getElementById("licenseExpiry");
+                expiryField.classList.add('error');
+                showAlert('License expiry date cannot be in the past', 'error');
+                isValid = false;
+            }
+
+            // Validate phone number format (Philippine)
+            const phone = document.getElementById("contactNumber").value.trim();
+            const phoneRegex = /^(09\d{9}|\d{10,11})$/;
+            if (phone && !phoneRegex.test(phone.replace(/[-\s]/g, ''))) {
+                const phoneField = document.getElementById("contactNumber");
+                phoneField.classList.add('error');
+                showAlert('Please enter a valid Philippine phone number (09XXXXXXXXX)', 'error');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function discardChanges() {
+            if (confirm('Are you sure you want to discard all changes?')) {
+                window.location.href = 'profile.html';
+            }
+        }
+
+        function goToProfile() {
+            window.location.href = 'profile.html';
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                alertDiv.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Make functions available globally
+        window.saveProfile = saveProfile;
+        window.discardChanges = discardChanges;
+        window.goToProfile = goToProfile;
+    </script>
+</body>
+</html>

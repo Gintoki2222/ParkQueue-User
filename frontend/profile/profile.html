@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - ParkQueue</title>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2b9103 0%, #041203 53%, #6c7d00 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 15px 0;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .edit-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .edit-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Glass Card Styling */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Profile Header */
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 48px;
+            border: 4px solid white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-info h1 {
+            color: #2b9103;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .profile-info h2 {
+            color: #666;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-approved {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-verified {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        /* Info Cards Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Card Styling */
+        .info-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card-title {
+            color: #2b9103;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e8f5e9;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-section {
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            color: #2b9103;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Info Grid Layout */
+        .personal-grid, .vehicle-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .info-row:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .info-label {
+            color: #666;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* QR Code Section */
+        .qr-section {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 25px;
+        }
+
+        .qr-container {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            display: inline-block;
+            margin: 20px auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #2b9103;
+        }
+
+        #qrcode {
+            width: 200px;
+            height: 200px;
+        }
+
+        #qrcode img {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            color: white;
+            box-shadow: 0 4px 15px rgba(43, 145, 3, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(43, 145, 3, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #2b9103;
+            border: 2px solid #2b9103;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: #2b9103;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-disabled {
+            background: #cccccc;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 100px 20px;
+            color: white;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Alert */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+        }
+
+        .alert-success { 
+            background: rgba(16, 185, 129, 0.95); 
+        }
+        .alert-error { 
+            background: rgba(239, 68, 68, 0.95); 
+        }
+        .alert-warning { 
+            background: rgba(245, 158, 11, 0.95); 
+        }
+        .alert-info { 
+            background: rgba(52, 152, 219, 0.95); 
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+                margin-bottom: 20px;
+            }
+
+            .back-btn, .edit-btn {
+                align-self: flex-start;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logo {
+                text-align: center;
+                font-size: 28px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 36px;
+            }
+
+            .profile-info h1 {
+                font-size: 24px;
+            }
+
+            .profile-info h2 {
+                font-size: 16px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .personal-grid, .vehicle-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-card {
+                padding: 20px;
+            }
+
+            .qr-section {
+                padding: 20px;
+            }
+
+            .qr-container {
+                padding: 15px;
+            }
+
+            #qrcode {
+                width: 180px;
+                height: 180px;
+            }
+
+            .qr-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+                padding: 14px;
+            }
+
+            .glass-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 28px;
+            }
+
+            .profile-info h1 {
+                font-size: 20px;
+            }
+
+            .info-card {
+                padding: 15px;
+            }
+
+            .card-title {
+                font-size: 18px;
+            }
+
+            .info-value {
+                font-size: 14px;
+            }
+
+            #qrcode {
+                width: 160px;
+                height: 160px;
+            }
+
+            .alert {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+            }
+        }
+
+        /* Tablet */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* QR Code Status */
+        .qr-status {
+            margin-bottom: 20px;
+        }
+
+        .qr-help {
+            color: #666;
+            margin-top: 15px;
+            font-size: 14px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <a href="../dashboard/dashboard.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+            
+            <div class="logo">ParkQueue</div>
+            
+            <button class="edit-btn" onclick="navigateToEdit()">
+                <i class="fas fa-edit"></i>
+                <span>Edit Profile</span>
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">
+            <div class="loading-spinner"></div>
+            <p>Loading your profile...</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div id="profileContent" style="display: none;">
+            <!-- Profile Header Card -->
+            <div class="glass-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">KG</div>
+                    <div class="profile-info">
+                        <h1 id="studentName">Kenneth John Galiza</h1>
+                        <h2 id="studentInfo">3rd Year, BSIT-3D</h2>
+                        <div class="status-badge" id="accountStatus">
+                            <i class="fas fa-check-circle"></i> Account Verified
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Grid -->
+            <div class="info-grid">
+                <!-- Personal Information -->
+                <div class="info-card">
+                    <div class="card-title">
+                        <i class="fas fa-user"></i>
+                        Personal Information
+                    </div>
+                    
+                    <div class="personal-grid">
+                        <div class="info-row">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value" id="fullName">Kenneth John Galiza</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value" id="email">ken@gmail.com</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Phone Number</span>
+                            <span class="info-value" id="contactNumber">0923-123-1231</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Student ID</span>
+                            <span class="info-value" id="studentId">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Course & Year</span>
+                            <span class="info-value" id="courseYear">BSIT - 3rd Year</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Section</span>
+                            <span class="info-value" id="section">3D</span>
+                        </div>
+                        <div class="info-row" style="grid-column: 1 / -1;">
+                            <span class="info-label">Address</span>
+                            <span class="info-value" id="address">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicle Information -->
+                <div class="info-card">
+                    <div class="card-title">
+                        <i class="fas fa-motorcycle"></i>
+                        Vehicle Information
+                    </div>
+                    
+                    <div class="vehicle-grid">
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Brand</span>
+                            <span class="info-value" id="vehicleBrand">Honda</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Model</span>
+                            <span class="info-value" id="vehicleModel">Click V2 125</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Plate Number</span>
+                            <span class="info-value" id="plateNumber">PGI143</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Type</span>
+                            <span class="info-value" id="vehicleType">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Vehicle Color</span>
+                            <span class="info-value" id="vehicleColor">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">License Number</span>
+                            <span class="info-value" id="licenseNumber">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">License Expiry</span>
+                            <span class="info-value" id="licenseExpiry">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code Section -->
+            <div class="qr-section" id="qrSection">
+                <div class="card-title">
+                    <i class="fas fa-qrcode"></i>
+                    Parking QR Code
+                </div>
+                
+                <div class="qr-status" id="qrStatusContainer">
+                    <!-- QR status will be shown here -->
+                </div>
+                
+                <div class="qr-container">
+                    <div id="qrcode"></div>
+                </div>
+                
+                <div class="qr-actions">
+                    <button class="btn btn-primary" onclick="downloadQRCode()" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download QR Code
+                    </button>
+                    <button class="btn btn-secondary" onclick="regenerateQR()" id="regenerateBtn">
+                        <i class="fas fa-sync-alt"></i> Regenerate QR
+                    </button>
+                </div>
+                
+                <p class="qr-help">
+                    <i class="fas fa-info-circle"></i> Show this QR code to security guard for parking entry/exit. 
+                    The QR code is automatically generated for all registered users.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Container -->
+    <div id="alertContainer"></div>
+
+    <script type="module">
+        import {
+            auth,
+            db,
+            doc,
+            getDoc,
+            collection,
+            query,
+            where,
+            getDocs,
+            onAuthStateChanged
+        } from "../firebase.js";
+
+        let currentUser = null;
+
+        // Initialize
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("🔧 Initializing profile page...");
+            initializeProfile();
+        });
+
+        async function initializeProfile() {
+            try {
+                currentUser = await new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        unsubscribe();
+                        resolve(user);
+                    });
+                });
+
+                if (!currentUser) {
+                    showAlert('Please log in to view your profile', 'error');
+                    setTimeout(() => window.location.href = "../Login&Register.html", 2000);
+                    return;
+                }
+
+                console.log("✅ User authenticated:", currentUser.email);
+                await loadProfileData();
+                
+            } catch (error) {
+                console.error("❌ Profile initialization failed:", error);
+                showAlert("Failed to load profile: " + error.message, 'error');
+            }
+        }
+
+        async function loadProfileData() {
+            try {
+                console.log("📥 Loading profile data...");
+                
+                // Get user document
+                const userRef = doc(db, "users", currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (!userDoc.exists()) {
+                    showAlert("User not found. Please complete registration.", 'warning');
+                    setTimeout(() => window.location.href = "../dashboard/dashboard.html", 3000);
+                    return;
+                }
+                
+                const userData = userDoc.data();
+
+                // Get personal information
+                let personalInfo = {};
+                const personalQuery = query(
+                    collection(db, "personalInfo"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                const personalSnapshot = await getDocs(personalQuery);
+                
+                if (!personalSnapshot.empty) {
+                    personalInfo = personalSnapshot.docs[0].data();
+                }
+
+                // Get vehicle information
+                let vehicleInfo = {};
+                const vehicleQuery = query(
+                    collection(db, "motorInfo"),
+                    where("user_id", "==", currentUser.uid)
+                );
+                const vehicleSnapshot = await getDocs(vehicleQuery);
+                
+                if (!vehicleSnapshot.empty) {
+                    vehicleInfo = vehicleSnapshot.docs[0].data();
+                }
+
+                // Update UI with user data
+                updateProfileUI(userData, personalInfo, vehicleInfo);
+                
+                // Generate QR code for all users (no restrictions)
+                generateQRCode(personalInfo, vehicleInfo);
+                showQRCodeSection(userData);
+                
+                // Show content
+                document.getElementById("loadingState").style.display = "none";
+                document.getElementById("profileContent").style.display = "block";
+                
+            } catch (error) {
+                console.error("❌ Error loading profile:", error);
+                showAlert("Failed to load profile data: " + error.message, 'error');
+            }
+        }
+
+        function updateProfileUI(userData, personalInfo, vehicleInfo) {
+            // Update avatar
+            const name = personalInfo.first_name || userData.email.split('@')[0] || "U";
+            const avatar = document.getElementById("profileAvatar");
+            avatar.textContent = name.charAt(0).toUpperCase();
+
+            // Update header info
+            const fullName = `${personalInfo.first_name || ""} ${personalInfo.last_name || ""}`.trim();
+            document.getElementById("studentName").textContent = fullName || "User";
+            document.getElementById("fullName").textContent = fullName || "-";
+            
+            // Update student info
+            const yearLevel = formatYearLevel(personalInfo.year_level);
+            const course = personalInfo.course || "";
+            const section = personalInfo.section || "";
+            document.getElementById("studentInfo").textContent = 
+                `${yearLevel}${course ? ", " + course : ""}${section ? "-" + section : ""}`.replace(/^, /, '') || "Student";
+            document.getElementById("courseYear").textContent = 
+                `${course || "-"}${yearLevel ? " - " + yearLevel : ""}`;
+            
+            // Update personal info
+            document.getElementById("email").textContent = currentUser.email || "-";
+            document.getElementById("contactNumber").textContent = personalInfo.contact_number || "-";
+            document.getElementById("studentId").textContent = personalInfo.student_id || "-";
+            document.getElementById("section").textContent = personalInfo.section || "-";
+            document.getElementById("address").textContent = personalInfo.address || "-";
+            
+            // Update vehicle info
+            document.getElementById("vehicleBrand").textContent = vehicleInfo.motorcycle_brand || vehicleInfo.brand || "-";
+            document.getElementById("vehicleModel").textContent = vehicleInfo.motorcycle_model || vehicleInfo.model || "-";
+            document.getElementById("plateNumber").textContent = vehicleInfo.plate_number || "-";
+            document.getElementById("vehicleType").textContent = vehicleInfo.motorcycle_type || vehicleInfo.type || "-";
+            document.getElementById("vehicleColor").textContent = vehicleInfo.motorcycle_color || vehicleInfo.color || "-";
+            document.getElementById("licenseNumber").textContent = vehicleInfo.license_number || "-";
+            
+            // Format license expiry date
+            if (vehicleInfo.license_expiry) {
+                const expiryDate = vehicleInfo.license_expiry.toDate ? 
+                    vehicleInfo.license_expiry.toDate() : 
+                    new Date(vehicleInfo.license_expiry);
+                document.getElementById("licenseExpiry").textContent = 
+                    expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } else {
+                document.getElementById("licenseExpiry").textContent = "-";
+            }
+            
+            // Update account status
+            const accountStatus = document.getElementById("accountStatus");
+            if (userData.admin_approved) {
+                accountStatus.className = "status-badge status-approved";
+                accountStatus.innerHTML = '<i class="fas fa-check-circle"></i> Account Verified';
+            } else {
+                accountStatus.className = "status-badge status-pending";
+                accountStatus.innerHTML = '<i class="fas fa-clock"></i> Pending Admin Approval';
+            }
+        }
+
+        function showQRCodeSection(userData) {
+            const qrStatusContainer = document.getElementById("qrStatusContainer");
+            
+            if (userData.admin_approved) {
+                qrStatusContainer.innerHTML = `
+                    <div class="status-badge status-approved" style="margin-bottom: 10px;">
+                        <i class="fas fa-check-circle"></i> QR Code Ready for Parking
+                    </div>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                        Your QR code is valid for parking access. Show it to security when entering/exiting.
+                    </p>
+                `;
+            } else {
+                qrStatusContainer.innerHTML = `
+                    <div class="status-badge status-pending" style="margin-bottom: 10px;">
+                        <i class="fas fa-clock"></i> QR Code Generated - Awaiting Admin Approval
+                    </div>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                        Your QR code is ready but will only work for parking after admin approval.
+                        You can still download it now.
+                    </p>
+                `;
+            }
+            
+            // Enable buttons
+            document.getElementById("downloadBtn").disabled = false;
+            document.getElementById("regenerateBtn").disabled = false;
+            document.getElementById("downloadBtn").className = "btn btn-primary";
+            document.getElementById("regenerateBtn").className = "btn btn-secondary";
+        }
+
+        function generateQRCode(personalInfo, vehicleInfo) {
+            try {
+                console.log("🔄 Generating QR code...");
+                
+                // Create compact QR data
+                const qrData = {
+                    uid: currentUser.uid,
+                    email: currentUser.email || "",
+                    name: `${personalInfo.first_name || ""} ${personalInfo.last_name || ""}`.trim() || "User",
+                    plate: vehicleInfo.plate_number || "",
+                    timestamp: new Date().toISOString()
+                };
+                
+                const qrString = JSON.stringify(qrData);
+                
+                // Clear previous QR
+                const qrContainer = document.getElementById("qrcode");
+                qrContainer.innerHTML = "";
+                
+                // Generate QR code
+                const qr = qrcode(0, 'H');
+                qr.addData(qrString);
+                qr.make();
+                
+                // Create image
+                const cellSize = 5;
+                const margin = 2;
+                const size = qr.getModuleCount();
+                const canvas = document.createElement('canvas');
+                const imgSize = (size + margin * 2) * cellSize;
+                
+                canvas.width = imgSize;
+                canvas.height = imgSize;
+                const ctx = canvas.getContext('2d');
+                
+                // White background
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, imgSize, imgSize);
+                
+                // Draw QR code
+                ctx.fillStyle = '#2b9103'; // Green color to match theme
+                for (let row = 0; row < size; row++) {
+                    for (let col = 0; col < size; col++) {
+                        if (qr.isDark(row, col)) {
+                            ctx.fillRect(
+                                (col + margin) * cellSize,
+                                (row + margin) * cellSize,
+                                cellSize,
+                                cellSize
+                            );
+                        }
+                    }
+                }
+                
+                // Add logo in center
+                const logoSize = cellSize * 5;
+                const logoX = imgSize / 2 - logoSize / 2;
+                const logoY = imgSize / 2 - logoSize / 2;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(logoX, logoY, logoSize, logoSize);
+                ctx.fillStyle = '#2b9103';
+                ctx.font = `${logoSize * 0.7}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('P', imgSize / 2, imgSize / 2);
+                
+                // Add to container
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL('image/png');
+                img.style.width = '200px';
+                img.style.height = '200px';
+                img.style.borderRadius = '5px';
+                qrContainer.appendChild(img);
+                
+                // Store canvas for download
+                window.qrCanvas = canvas;
+                
+                console.log("✅ QR code generated");
+                
+            } catch (error) {
+                console.error('❌ Error generating QR code:', error);
+                showAlert('Error generating QR code: ' + error.message, 'error');
+                
+                // Show error message
+                const qrContainer = document.getElementById("qrcode");
+                qrContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                        <p>Failed to generate QR code</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Please try refreshing the page</p>
+                    </div>
+                `;
+            }
+        }
+
+        function downloadQRCode() {
+            try {
+                if (!window.qrCanvas) {
+                    showAlert('QR code not available', 'warning');
+                    return;
+                }
+                
+                const timestamp = new Date().toISOString().split('T')[0];
+                const filename = `parkqueue-${currentUser.uid.slice(-8)}-${timestamp}.png`;
+                
+                const link = document.createElement("a");
+                link.download = filename;
+                link.href = window.qrCanvas.toDataURL("image/png");
+                link.click();
+                
+                showAlert('QR code downloaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('❌ Error downloading QR code:', error);
+                showAlert('Failed to download QR code', 'error');
+            }
+        }
+
+        function regenerateQR() {
+            showAlert('Regenerating QR code...', 'info');
+            
+            // Get fresh data
+            loadProfileData();
+        }
+
+        function navigateToEdit() {
+            window.location.href = "edit-profile.html";
+        }
+
+        function formatYearLevel(year) {
+            if (!year) return '';
+            const yearMap = {
+                '1': '1st Year',
+                '2': '2nd Year',
+                '3': '3rd Year',
+                '4': '4th Year',
+                '5': '5th Year'
+            };
+            return yearMap[year] || year;
+        }
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                ${message}
+            `;
+            
+            const container = document.getElementById('alertContainer');
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (alertDiv.parentNode) {
+                        alertDiv.parentNode.removeChild(alertDiv);
+                    }
+                }, 300);
+            }, 5000);
+        }
+
+        // Make functions available globally
+        window.downloadQRCode = downloadQRCode;
+        window.regenerateQR = regenerateQR;
+        window.navigateToEdit = navigateToEdit;
+    </script>
+</body>
+</html>
