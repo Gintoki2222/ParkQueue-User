@@ -43,6 +43,107 @@ function clearAllErrors() {
     errorMessages.forEach(msg => msg.remove());
 }
 
+// Check if mobile device
+function isMobileDevice() {
+    return window.innerWidth <= 768;
+}
+
+// Switch from login form to registration form
+function switchToRegister(e) {
+    e.preventDefault();
+    clearAllErrors();
+    
+    if (isMobileDevice()) {
+        // Mobile: vertical sliding
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        // Slide form down and image up
+        formContainer.classList.add('slide-down');
+        imageContainer.classList.add('slide-up');
+        
+        // Switch forms after animation
+        setTimeout(() => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            // Reverse positions for next switch
+            formContainer.style.order = '2';
+            imageContainer.style.order = '1';
+        }, 400);
+    } else {
+        // Desktop: horizontal sliding
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        formContainer.classList.add('slide-right');
+        imageContainer.classList.add('slide-left');
+        
+        setTimeout(() => {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+        }, 400);
+    }
+}
+
+// Switch from registration form to login form
+function switchToLogin(e) {
+    e.preventDefault();
+    clearAllErrors();
+    
+    if (isMobileDevice()) {
+        // Mobile: vertical sliding
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        // Remove slide classes for animation
+        formContainer.classList.remove('slide-down');
+        imageContainer.classList.remove('slide-up');
+        
+        // Switch forms after animation
+        setTimeout(() => {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            // Restore original order
+            formContainer.style.order = '1';
+            imageContainer.style.order = '2';
+        }, 400);
+    } else {
+        // Desktop: horizontal sliding
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        formContainer.classList.remove('slide-right');
+        imageContainer.classList.remove('slide-left');
+        
+        setTimeout(() => {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+        }, 400);
+    }
+}
+
+// Handle window resize
+window.addEventListener('resize', function() {
+    if (!isMobileDevice()) {
+        // Reset mobile styles when going back to desktop
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        
+        formContainer.classList.remove('slide-down', 'slide-up');
+        imageContainer.classList.remove('slide-down', 'slide-up');
+        formContainer.style.order = '';
+        imageContainer.style.order = '';
+    }
+});
+
 // Handle Google OAuth login with fallback
 async function handleGoogleLogin() {
     try {
@@ -231,64 +332,6 @@ async function handleLogin() {
     }
 }
 
-function switchToRegister(e) {
-    e.preventDefault();
-    clearAllErrors();
-    
-    const formContainer = document.querySelector('.form-container');
-    const imageContainer = document.querySelector('.image-container');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    
-    // Add slide classes for animation
-    formContainer.classList.add('slide-right');
-    imageContainer.classList.add('slide-left');
-    
-    // Switch forms after animation
-    setTimeout(() => {
-        loginForm.style.display = 'none';
-        registerForm.style.display = 'block';
-    }, 400);
-}
-
-// Switch from registration form to login form
-function switchToLogin(e) {
-    e.preventDefault();
-    clearAllErrors();
-    
-    const formContainer = document.querySelector('.form-container');
-    const imageContainer = document.querySelector('.image-container');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    
-    // Remove slide classes for animation
-    formContainer.classList.remove('slide-right');
-    imageContainer.classList.remove('slide-left');
-    
-    // Switch forms after animation
-    setTimeout(() => {
-        registerForm.style.display = 'none';
-        loginForm.style.display = 'block';
-    }, 400);
-}
-
-// Toggle password visibility
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const icon = document.getElementById(inputId + 'Icon');
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('bi-eye');
-        icon.classList.add('bi-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('bi-eye-slash');
-        icon.classList.add('bi-eye');
-    }
-}
-
-// Reset login button to default state
 function resetLoginButton() {
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
@@ -332,6 +375,22 @@ async function handleForgotPassword() {
     }
 }
 
+// Toggle password visibility
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + 'Icon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('bi-eye');
+        icon.classList.add('bi-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('bi-eye-slash');
+        icon.classList.add('bi-eye');
+    }
+}
+
 // Clear all fields in registration form
 function clearRegisterForm() {
     clearAllErrors();
@@ -350,6 +409,15 @@ function clearLoginForm() {
 
 // Initialize event listeners when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize based on device
+    if (isMobileDevice()) {
+        // Set initial order for mobile
+        const formContainer = document.querySelector('.form-container');
+        const imageContainer = document.querySelector('.image-container');
+        formContainer.style.order = '1';
+        imageContainer.style.order = '2';
+    }
+    
     const inputs = ['loginEmail', 'loginPassword', 'registerEmail', 'registerUsername', 'registerPassword', 'confirmPassword'];
     
     inputs.forEach(inputId => {
@@ -389,8 +457,18 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmPassword.addEventListener('keypress', handleRegisterEnter);
     }
 
-    document.getElementById('loginForm').style.display = 'block';
-    document.getElementById('registerForm').style.display = 'none';
+    // Auto-focus first input
+    const loginEmailInput = document.getElementById('loginEmail');
+    if (loginEmailInput) loginEmailInput.focus();
+
+    // Loading state for login button
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function () {
+            this.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Logging in...';
+            this.disabled = true;
+        });
+    }
 });
 
 // Export functions to global scope

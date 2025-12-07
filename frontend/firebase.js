@@ -26,7 +26,8 @@ import {
     query,
     where,
     getDocs,
-    Timestamp
+    Timestamp,
+    onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 // Firebase configuration
@@ -287,33 +288,37 @@ async function completeRegistration(email, code) {
         console.log('✅ [DEBUG-11] Firebase Auth user created:', user.uid);
         console.log('🔧 [DEBUG-12] User email verified status:', user.emailVerified);
 
-        // 4. Create user document in Firestore with ALL required fields
+        // 4. Create user document in Firestore with Firebase UID as document ID
         console.log('📝 [DEBUG-13] Creating user document in Firestore...');
+        // ✅ CRITICAL FIX: Use Firebase UID as document ID
         const userRef = doc(db, "users", user.uid);
 
         const userDocData = {
+            // Essential identifiers
+            uid: user.uid, // Store Firebase UID in the document too
             email: user.email,
             username: userData.username || user.email.split('@')[0],
             first_name: userData.firstName || '',
             last_name: userData.lastName || '',
+            
+            // Verification and approval fields
             is_verified: true,
             email_verified: true,
-            // ✅ FIXED: Added all approval fields
             approval_status: "pending",
             verification_submitted: true,
             admin_approved: false,
             admin_reviewed: false,
+            
             // Timestamps
             created_at: Timestamp.now(),
             updated_at: Timestamp.now(),
-            uid: user.uid,
             registration_method: 'email'
         };
 
         console.log('🔧 [DEBUG-14] User document data to save:', userDocData);
 
         await setDoc(userRef, userDocData);
-        console.log('✅ [DEBUG-15] User document created in Firestore');
+        console.log('✅ [DEBUG-15] User document created in Firestore with UID as document ID');
 
         // 5. Verify the document was actually created
         console.log('🔍 [DEBUG-16] Verifying Firestore document was created...');
@@ -379,59 +384,7 @@ async function loginUser(email, password) {
 
         console.log('✅ Login successful:', user.uid);
 
-        try {
-            const userDocRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userDocRef);
-
-            if (userDoc.exists()) {
-                await updateDoc(userDocRef, {
-                    last_login: Timestamp.now(),
-                    updated_at: Timestamp.now()
-                });
-            } else {
-                // ✅ FIXED: Added approval fields for users without existing document
-                await setDoc(userDocRef, {
-                    email: user.email,
-                    username: user.email.split('@')[0],
-                    first_name: '',
-                    last_name: '',
-                    is_verified: true,
-                    email_verified: user.emailVerified || false,
-                    approval_status: "pending",
-                    verification_submitted: false,
-                    admin_approved: false,
-                    admin_reviewed: false,
-                    created_at: Timestamp.now(),
-                    updated_at: Timestamp.now(),
-                    last_login: Timestamp.now(),
-                    uid: user.uid,
-                    registration_method: 'email'
-                });
-            }
-        } catch (dbError) {
-            console.log('User doc update:', dbError.message);
-        }
-
-        window.location.href = 'Dashboard/dashboard.html';
-
-    } catch (error) {
-        console.error('❌ Login error:', error);
-        throw error;
-    }
-}
-
-// ✅ FIXED: Google Login with all approval fields
-async function loginWithGoogle() {
-    try {
-        console.log('🔐 Google sign-in...');
-
-        await setPersistence(auth, browserLocalPersistence);
-
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        console.log('✅ Google login:', user.email);
-
-        // Ensure user document exists
+        // ✅ CRITICAL FIX: Always use Firebase UID as document ID
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
@@ -442,24 +395,72 @@ async function loginWithGoogle() {
                 updated_at: Timestamp.now()
             });
         } else {
-            // ✅ FIXED: Create new user with ALL approval fields
+            // ✅ CRITICAL FIX: Create new user with Firebase UID as document ID
             await setDoc(userDocRef, {
+                uid: user.uid, // Store UID in document
+                email: user.email,
+                username: user.email.split('@')[0],
+                first_name: '',
+                last_name: '',
+                is_verified: true,
+                email_verified: user.emailVerified || false,
+                approval_status: "pending",
+                verification_submitted: false,
+                admin_approved: false,
+                admin_reviewed: false,
+                created_at: Timestamp.now(),
+                updated_at: Timestamp.now(),
+                last_login: Timestamp.now(),
+                registration_method: 'email'
+            });
+        }
+
+        window.location.href = 'Dashboard/dashboard.html';
+
+    } catch (error) {
+        console.error('❌ Login error:', error);
+        throw error;
+    }
+}
+
+// ✅ FIXED: Google Login with Firebase UID as document ID
+async function loginWithGoogle() {
+    try {
+        console.log('🔐 Google sign-in...');
+
+        await setPersistence(auth, browserLocalPersistence);
+
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        console.log('✅ Google login:', user.email);
+
+        // ✅ CRITICAL FIX: Use Firebase UID as document ID
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+            // Update existing user
+            await updateDoc(userDocRef, {
+                last_login: Timestamp.now(),
+                updated_at: Timestamp.now()
+            });
+        } else {
+            // ✅ CRITICAL FIX: Create new user with Firebase UID as document ID
+            await setDoc(userDocRef, {
+                uid: user.uid, // Store UID in document
                 email: user.email,
                 username: user.displayName || user.email.split('@')[0],
                 first_name: user.displayName?.split(' ')[0] || '',
                 last_name: user.displayName?.split(' ')[1] || '',
                 is_verified: true,
                 email_verified: true,
-                // ✅ ALL approval fields
                 approval_status: "pending",
                 verification_submitted: true,
                 admin_approved: false,
                 admin_reviewed: false,
-                // Additional fields
                 photo_url: user.photoURL || null,
                 created_at: Timestamp.now(),
                 updated_at: Timestamp.now(),
-                uid: user.uid,
                 last_login: Timestamp.now(),
                 registration_method: 'google'
             });
@@ -509,6 +510,311 @@ function clearLoginForm() {
         if (el) el.value = '';
     });
 }
+// -----------------------------
+// COMPLETE PROFILE MANAGEMENT FUNCTIONS
+// -----------------------------
+
+// Get current user's complete profile data
+async function getCompleteUserProfile() {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No user logged in');
+        }
+
+        console.log('📥 Fetching complete profile for:', user.uid);
+
+        // Get user document
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            throw new Error('User profile not found');
+        }
+        
+        const userData = userDoc.data();
+        console.log('✅ User data loaded:', userData);
+
+        // Get personal information
+        let personalInfo = {};
+        const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const personalSnapshot = await getDocs(personalQuery);
+        
+        if (!personalSnapshot.empty) {
+            personalInfo = personalSnapshot.docs[0].data();
+            console.log('✅ Personal info loaded:', personalInfo);
+        }
+
+        // Get motorcycle information
+        let vehicleInfo = {};
+        const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const vehicleSnapshot = await getDocs(vehicleQuery);
+        
+        if (!vehicleSnapshot.empty) {
+            vehicleInfo = vehicleSnapshot.docs[0].data();
+            console.log('✅ Vehicle info loaded:', vehicleInfo);
+        }
+
+        // Get counts
+        const [parkingCount, violationsCount] = await Promise.all([
+            getCollectionCount("parkingHistory", user.uid),
+            getCollectionCount("violations", user.uid)
+        ]);
+
+        return {
+            user: userData,
+            personal: personalInfo,
+            vehicle: vehicleInfo,
+            counts: {
+                parkings: parkingCount,
+                violations: violationsCount,
+                vehicles: vehicleSnapshot.empty ? 0 : 1
+            }
+        };
+
+    } catch (error) {
+        console.error('❌ Error getting complete profile:', error);
+        throw error;
+    }
+}
+
+// Helper function to get collection count
+async function getCollectionCount(collectionName, userId) {
+    try {
+        const q = query(
+            collection(db, collectionName),
+            where("user_id", "==", userId)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.size;
+    } catch (error) {
+        console.error(`❌ Error counting ${collectionName}:`, error);
+        return 0;
+    }
+}
+
+// Update personal information with all fields
+async function updatePersonalInfo(personalData) {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No user logged in');
+        }
+
+        // Get existing personal info
+        const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const personalSnapshot = await getDocs(personalQuery);
+
+        const dataWithTimestamp = {
+            ...personalData,
+            updated_at: Timestamp.now()
+        };
+
+        if (!personalSnapshot.empty) {
+            // Update existing document
+            const docId = personalSnapshot.docs[0].id;
+            const docRef = doc(db, "personalInfo", docId);
+            await updateDoc(docRef, dataWithTimestamp);
+        } else {
+            // Create new document
+            dataWithTimestamp.user_id = user.uid;
+            dataWithTimestamp.created_at = Timestamp.now();
+            await addDoc(collection(db, "personalInfo"), dataWithTimestamp);
+        }
+
+        console.log('✅ Personal info updated');
+        return true;
+    } catch (error) {
+        console.error('❌ Error updating personal info:', error);
+        throw error;
+    }
+}
+
+// Update motorcycle information
+async function updateVehicleInfo(vehicleData) {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No user logged in');
+        }
+
+        // Get existing vehicle info
+        const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const vehicleSnapshot = await getDocs(vehicleQuery);
+
+        const dataWithTimestamp = {
+            ...vehicleData,
+            updated_at: Timestamp.now()
+        };
+
+        if (!vehicleSnapshot.empty) {
+            // Update existing document
+            const docId = vehicleSnapshot.docs[0].id;
+            const docRef = doc(db, "motorInfo", docId);
+            await updateDoc(docRef, dataWithTimestamp);
+        } else {
+            // Create new document
+            dataWithTimestamp.user_id = user.uid;
+            dataWithTimestamp.created_at = Timestamp.now();
+            await addDoc(collection(db, "motorInfo"), dataWithTimestamp);
+        }
+
+        console.log('✅ Vehicle info updated');
+        return true;
+    } catch (error) {
+        console.error('❌ Error updating vehicle info:', error);
+        throw error;
+    }
+}
+
+// Submit profile for admin approval
+async function submitProfileForApproval() {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No user logged in');
+        }
+
+        // Check if profile is complete
+        const isComplete = await isProfileComplete();
+        if (!isComplete) {
+            throw new Error('Please complete all profile information before submitting');
+        }
+
+        // Update user document
+        const userRef = doc(db, "users", user.uid);
+        await updateDoc(userRef, {
+            verification_submitted: true,
+            approval_status: "pending",
+            submitted_at: Timestamp.now(),
+            updated_at: Timestamp.now()
+        });
+
+        console.log('✅ Profile submitted for admin approval');
+        return true;
+    } catch (error) {
+        console.error('❌ Error submitting profile:', error);
+        throw error;
+    }
+}
+
+// Check if profile is complete for submission
+async function isProfileComplete() {
+    try {
+        const user = auth.currentUser;
+        if (!user) return false;
+
+        // Get personal info
+        const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const personalSnapshot = await getDocs(personalQuery);
+        
+        // Get vehicle info
+        const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const vehicleSnapshot = await getDocs(vehicleQuery);
+
+        if (personalSnapshot.empty || vehicleSnapshot.empty) {
+            return false;
+        }
+
+        const personalData = personalSnapshot.docs[0].data();
+        const vehicleData = vehicleSnapshot.docs[0].data();
+
+        // Required personal fields
+        const requiredPersonal = [
+            'first_name', 'last_name', 'contact_number', 
+            'course', 'year_level', 'section'
+        ];
+        
+        // Required vehicle fields
+        const requiredVehicle = [
+            'plate_number', 'license_number', 'motorcycle_brand',
+            'motorcycle_model'
+        ];
+
+        const hasAllPersonal = requiredPersonal.every(field => 
+            personalData[field] && personalData[field].toString().trim() !== ''
+        );
+        
+        const hasAllVehicle = requiredVehicle.every(field => 
+            vehicleData[field] && vehicleData[field].toString().trim() !== ''
+        );
+
+        return hasAllPersonal && hasAllVehicle;
+    } catch (error) {
+        console.error('❌ Error checking profile completion:', error);
+        return false;
+    }
+}
+
+// Get optimized QR code data
+async function getOptimizedQRData() {
+    try {
+        const user = auth.currentUser;
+        if (!user) {
+            throw new Error('No user logged in');
+        }
+
+        // Get user document
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (!userDoc.exists() || !userDoc.data().admin_approved) {
+            return null;
+        }
+
+        // Get personal info
+        const personalQuery = query(
+            collection(db, "personalInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const personalSnapshot = await getDocs(personalQuery);
+        
+        // Get vehicle info
+        const vehicleQuery = query(
+            collection(db, "motorInfo"),
+            where("user_id", "==", user.uid)
+        );
+        const vehicleSnapshot = await getDocs(vehicleQuery);
+
+        const personalData = personalSnapshot.empty ? {} : personalSnapshot.docs[0].data();
+        const vehicleData = vehicleSnapshot.empty ? {} : vehicleSnapshot.docs[0].data();
+
+        // ✅ OPTIMIZED QR DATA - Shorter keys, essential info only
+        const qrData = {
+            // Essential identifiers (short keys)
+            uid: user.uid, // Firebase UID
+            fn: personalData.first_name || '', // First name
+            ln: personalData.last_name || '', // Last name
+            c: personalData.course || '', // Course
+            pl: vehicleData.plate_number || '', // Plate number
+            ts: Date.now() // Timestamp for freshness
+        };
+
+        console.log('📋 Optimized QR Data:', qrData);
+        return qrData;
+    } catch (error) {
+        console.error('❌ Error getting QR data:', error);
+        throw error;
+    }
+}
 
 // Export functions - MAKE SURE ALL ARE INCLUDED
 export {
@@ -533,10 +839,18 @@ export {
     addDoc,
     where,
     getDocs,
+    onSnapshot,
     Timestamp,
     onAuthStateChanged,
     GoogleAuthProvider,
-    signInWithPopup
+    signInWithPopup,
+    getCompleteUserProfile,
+    updatePersonalInfo,
+    updateVehicleInfo,
+    submitProfileForApproval,
+    isProfileComplete,
+    getOptimizedQRData,
+    getCollectionCount
 };
 
 // Global functions

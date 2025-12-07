@@ -1,26 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParkQueue - Login & Register</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css"
-        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="Log&Register.css">
 </head>
-
 <body>
     <div class="container">
-        <!-- Form Container (Login initially) -->
+        <!-- Form Container -->
         <div class="form-container" id="formContainer">
             <!-- Login Form -->
             <div class="form-content" id="loginForm">
                 <div class="logo-small">
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                        <path d="M20 5 L35 12 L35 28 L20 35 L5 28 L5 12 Z" fill="#333" stroke="#5cb85c"
-                            stroke-width="2" />
-                    </svg>
+                    <img src="../../img/logo.png" alt="" height="40px" width="40px">
                     <span>ParkQueue</span>
                 </div>
 
@@ -62,16 +56,11 @@
                 </button>
             </div>
 
-            <!-- Register Form (hidden initially) -->
+            <!-- Register Form -->
             <div class="form-content" id="registerForm" style="display: none;">
-                <div class="logo-small">
-                    <svg width="40" height="40" viewBox="0 0 40 40">
-                        <path d="M20 5 L35 12 L35 28 L20 35 L5 28 L5 12 Z" fill="#333" stroke="#5cb85c"
-                            stroke-width="2" />
-                    </svg>
-                    <span>ParkQueue</span>
+                <div class="acc-reg">
+                    <span class="acc-text">Account Registration</span>
                 </div>
-
                 <div class="input-group">
                     <input type="email" id="registerEmail" placeholder="Enter your Email">
                     <span class="icon"><i class="bi bi-envelope"></i></span>
@@ -116,13 +105,8 @@
 
         <!-- Image Container -->
         <div class="image-container" id="imageContainer">
-            <img src="img/motorbg.jpg" alt="Motorcycle" class="bike-image">
+            <img src="../../img/motorbg.jpg" alt="Motorcycle" class="bike-image">
             <div class="logo-overlay">
-                <svg width="100" height="100" viewBox="0 0 120 120">
-                    <path d="M60 20 L100 40 L100 80 L60 100 L20 80 L20 40 Z" fill="none" stroke="#b4ff64"
-                        stroke-width="3" />
-                    <circle cx="60" cy="60" r="15" fill="#b4ff64" />
-                </svg>
                 <div class="logo-text">Park<br>Queue</div>
             </div>
         </div>
@@ -131,11 +115,118 @@
     <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
     <script type="module" src="firebase.js"></script>
     <script src="Login&Register.js"></script>
-
     <script>
-        // Enhanced form handling
-        document.addEventListener('DOMContentLoaded', function () {
-            // Add Enter key support
+        // Check if mobile device
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+
+        // Modified switch functions for mobile
+        function switchToRegister(e) {
+            e.preventDefault();
+            clearAllErrors();
+            
+            if (isMobileDevice()) {
+                // Mobile: vertical sliding
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                // Slide form down and image up
+                formContainer.classList.add('slide-down');
+                imageContainer.classList.add('slide-up');
+                
+                // Switch forms after animation
+                setTimeout(() => {
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                    // Reverse positions for next switch
+                    formContainer.style.order = '2';
+                    imageContainer.style.order = '1';
+                }, 400);
+            } else {
+                // Desktop: horizontal sliding
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                formContainer.classList.add('slide-right');
+                imageContainer.classList.add('slide-left');
+                
+                setTimeout(() => {
+                    loginForm.style.display = 'none';
+                    registerForm.style.display = 'block';
+                }, 400);
+            }
+        }
+
+        function switchToLogin(e) {
+            e.preventDefault();
+            clearAllErrors();
+            
+            if (isMobileDevice()) {
+                // Mobile: vertical sliding
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                // Remove slide classes for animation
+                formContainer.classList.remove('slide-down');
+                imageContainer.classList.remove('slide-up');
+                
+                // Switch forms after animation
+                setTimeout(() => {
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                    // Restore original order
+                    formContainer.style.order = '1';
+                    imageContainer.style.order = '2';
+                }, 400);
+            } else {
+                // Desktop: horizontal sliding
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                
+                formContainer.classList.remove('slide-right');
+                imageContainer.classList.remove('slide-left');
+                
+                setTimeout(() => {
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                }, 400);
+            }
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (!isMobileDevice()) {
+                // Reset mobile styles when going back to desktop
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                
+                formContainer.classList.remove('slide-down', 'slide-up');
+                imageContainer.classList.remove('slide-down', 'slide-up');
+                formContainer.style.order = '';
+                imageContainer.style.order = '';
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            if (isMobileDevice()) {
+                // Set initial order for mobile
+                const formContainer = document.querySelector('.form-container');
+                const imageContainer = document.querySelector('.image-container');
+                formContainer.style.order = '1';
+                imageContainer.style.order = '2';
+            }
+            
+            // Enter key support
             document.getElementById('loginPassword')?.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     handleLogin();
@@ -154,13 +245,11 @@
                 }
             });
 
-            // Auto-focus first input when switching forms
+            // Auto-focus first input
             const loginEmail = document.getElementById('loginEmail');
-            const registerEmail = document.getElementById('registerEmail');
-
             if (loginEmail) loginEmail.focus();
 
-            // Show loading states
+            // Loading state for login button
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) {
                 loginBtn.addEventListener('click', function () {
@@ -203,14 +292,4 @@
         document.head.appendChild(style);
     </script>
 </body>
-
-
 </html>
-
-<!--DONT DELETE!!:  
-    this Login&Register page should have a sliding animations when user switch from log in to registration.
-    user should be able to register using google account only or with email, username and password.
-    after the user fill up and register their informations, the emailjs will send them a verification code
-    either email input or google account.
-    when user logging in they wont need to use vefication codes..
--->

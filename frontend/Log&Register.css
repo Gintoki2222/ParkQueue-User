@@ -19,7 +19,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, var(--dark-green) 0%, var(--medium-green) 25%, #1f4a0d 50%, #0a1f05 100%);
+    background: linear-gradient(210deg, #b6b303 0%, var(--medium-green) 25%, #023d02 50%, #b6b303 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -57,6 +57,25 @@ body {
     overflow-y: auto;
 }
 
+.acc-reg {
+    width: 100%;
+    max-width: 350px;
+}
+
+.acc-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: linear-gradient(23deg, rgba(27, 84, 5, 1) 0%, rgba(223, 255, 13, 1) 100%);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    gap: 12px;
+    margin-bottom: 25px;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-weight: 700;
+}
+
 .form-container.slide-right {
     transform: translateX(100%);
 }
@@ -91,17 +110,11 @@ body {
 
 .logo-overlay {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 30%;
+    left: 70%;
     transform: translate(-50%, -50%);
     text-align: center;
     z-index: 2;
-}
-
-.logo-overlay svg {
-    filter: drop-shadow(0 0 20px rgba(180, 255, 100, 0.8));
-    margin-bottom: 20px;
-    transition: var(--transition);
 }
 
 .logo-text {
@@ -135,6 +148,7 @@ body {
 .logo-small {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 12px;
     margin-bottom: 25px;
     font-size: clamp(1.25rem, 2vw, 1.5rem);
@@ -157,7 +171,7 @@ body {
     width: 100%;
     padding: 12px 40px 12px 12px;
     border: 2px solid var(--gray-medium);
-    border-radius: 8px;
+    border-radius: 30px;
     font-size: 13px;
     outline: none;
     transition: var(--transition);
@@ -220,26 +234,14 @@ body {
 }
 
 @keyframes shake {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    10%, 30%, 50%, 70%, 90% {
-        transform: translateX(-5px);
-    }
-    20%, 40%, 60%, 80% {
-        transform: translateX(5px);
-    }
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
 @keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .checkbox-group {
@@ -477,14 +479,8 @@ body {
 }
 
 @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
 }
 
 .spin {
@@ -496,73 +492,231 @@ body {
     100% { transform: rotate(360deg); }
 }
 
+/* Mobile Styles with Vertical Sliding */
 @media (max-width: 768px) {
     .container {
+        flex-direction: column;
         width: 100%;
         height: auto;
         min-height: 100vh;
         border-radius: 0;
-        flex-direction: column;
+        overflow: hidden;
     }
 
     .form-container,
     .image-container {
         position: relative;
         width: 100%;
-        height: auto;
+        height: 50vh;
         min-height: 50vh;
+        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .form-container {
-        padding: 25px 20px;
-        order: 2;
-        overflow-y: visible;
+        order: 1;
+        transform: translateY(0);
+        height: 60vh;
+        padding: 30px 25px;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .image-container {
-        order: 1;
+        order: 2;
         height: 40vh;
+        transform: translateY(0);
     }
 
+    /* Vertical slide animations */
+    .form-container.slide-down {
+        transform: translateY(-100%);
+    }
+
+    .image-container.slide-up {
+        transform: translateY(-100%);
+    }
+
+    .form-container.slide-up {
+        transform: translateY(100%);
+    }
+
+    .image-container.slide-down {
+        transform: translateY(100%);
+    }
+
+    /* Logo overlay adjustments for mobile */
+    .logo-overlay {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .logo-text {
+        font-size: 2.5rem;
+    }
+
+    /* Form adjustments */
+    .form-content {
+        max-width: 100%;
+        padding: 0 10px;
+    }
+
+    .logo-small {
+        font-size: 1.3rem;
+        margin-bottom: 25px;
+    }
+
+    .acc-text {
+        font-size: 1.5rem;
+        margin-bottom: 25px;
+    }
+
+    .input-group input {
+        padding: 14px 45px 14px 15px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        padding: 14px;
+        font-size: 15px;
+    }
+
+    .social-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .verification-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-secondary {
+        width: 100%;
+    }
+
+    /* Hide desktop animations on mobile */
     .form-container.slide-right,
     .image-container.slide-left {
         transform: none;
+    }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    .container {
+        border-radius: 0;
+    }
+
+    .form-container {
+        height: 55vh;
+        padding: 25px 20px;
+    }
+
+    .image-container {
+        height: 45vh;
     }
 
     .logo-text {
         font-size: 2rem;
     }
 
-    .verification-section {
-        flex-direction: column;
+    .logo-small {
+        font-size: 1.2rem;
+        margin-bottom: 20px;
     }
 
-    .btn-secondary {
-        width: 100%;
+    .acc-text {
+        font-size: 1.3rem;
+    }
+
+    .input-group input {
+        padding: 12px 40px 12px 12px;
+        font-size: 13px;
+    }
+
+    .btn-primary {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .social-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .divider {
+        margin: 20px 0;
+    }
+
+    .link-text {
+        font-size: 14px;
+        margin-bottom: 20px;
     }
 }
 
-@media (max-width: 480px) {
-    body {
-        padding: 10px;
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        width: 90%;
+        height: 550px;
     }
 
-    .container {
-        border-radius: 20px;
-        height: auto;
+    .form-container {
+        padding: 35px 30px;
+    }
+
+    .logo-text {
+        font-size: 2.8rem;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-height: 600px) and (max-width: 768px) {
+    .form-container,
+    .image-container {
+        height: 50vh;
+        min-height: 50vh;
     }
 
     .form-container {
         padding: 20px 15px;
     }
 
-    .form-content {
-        max-width: 100%;
+    .logo-text {
+        font-size: 2rem;
+    }
+
+    .logo-small {
+        margin-bottom: 15px;
+    }
+
+    .input-group {
+        margin-bottom: 8px;
+    }
+
+    .btn-primary {
+        margin-bottom: 10px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 320px) {
+    .form-container {
+        padding: 20px 15px;
     }
 
     .logo-small {
         font-size: 1.1rem;
-        margin-bottom: 20px;
+    }
+
+    .acc-text {
+        font-size: 1.1rem;
     }
 
     .input-group input {
@@ -581,9 +735,9 @@ body {
     }
 
     .logo-overlay svg {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 15px;
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
     }
 }
 
@@ -591,7 +745,7 @@ body {
     .input-group input {
         border-width: 3px;
     }
-    
+
     .btn-primary {
         border: 2px solid #000;
     }
