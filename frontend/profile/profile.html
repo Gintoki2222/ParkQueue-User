@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>My Profile - ParkQueue</title>
-    <!-- QR Code Library -->
+    <!-- Use qrcode-generator library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: "Arial", sans-serif;
         }
 
         body {
@@ -110,7 +110,7 @@
             width: 120px;
             height: 120px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            background: linear-gradient(135deg, #2b9103, #4caf50);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -190,22 +190,9 @@
             gap: 10px;
         }
 
-        .info-section {
-            margin-bottom: 15px;
-        }
-
-        .section-title {
-            color: #2b9103;
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
         /* Info Grid Layout */
-        .personal-grid, .vehicle-grid {
+        .personal-grid,
+        .vehicle-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 15px;
@@ -225,7 +212,7 @@
         .info-row:hover {
             background: #f0f0f0;
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .info-label {
@@ -254,24 +241,64 @@
             margin-top: 25px;
         }
 
+        /* UPDATED QR Container with anti-light reflection */
         .qr-container {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #5d4037 0%, #3e2723 50%, #5d4037 100%);
+            /* Dark brown gradient */
+            padding: 30px;
+            border-radius: 20px;
             display: inline-block;
             margin: 20px auto;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border: 2px solid #2b9103;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+        }
+
+        /* Subtle pattern overlay to reduce reflections */
+        .qr-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    transparent 1px
+                ),
+                radial-gradient(
+                    circle at 70% 70%,
+                    rgba(0, 0, 0, 0.05) 1px,
+                    transparent 1px
+                );
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
         }
 
         #qrcode {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
+        #qrcode canvas,
         #qrcode img {
             width: 100% !important;
             height: 100% !important;
+            border-radius: 5px;
         }
 
         .qr-actions {
@@ -296,7 +323,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #2b9103, #4CAF50);
+            background: linear-gradient(135deg, #2b9103, #4caf50);
             color: white;
             box-shadow: 0 4px 15px rgba(43, 145, 3, 0.2);
         }
@@ -330,6 +357,45 @@
             box-shadow: none;
         }
 
+        /* QR Code Instructions */
+        .qr-instructions {
+            background: rgba(93, 64, 55, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .qr-instructions h4 {
+            color: #5d4037;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .qr-instructions li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(93, 64, 55, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-instructions li:last-child {
+            border-bottom: none;
+        }
+
+        .qr-instructions i {
+            color: #5d4037;
+        }
+
         /* Loading State */
         .loading {
             text-align: center;
@@ -348,8 +414,12 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Alert */
@@ -366,28 +436,34 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 400px;
         }
 
-        .alert-success { 
-            background: rgba(16, 185, 129, 0.95); 
+        .alert-success {
+            background: rgba(16, 185, 129, 0.95);
         }
-        .alert-error { 
-            background: rgba(239, 68, 68, 0.95); 
+        .alert-error {
+            background: rgba(239, 68, 68, 0.95);
         }
-        .alert-warning { 
-            background: rgba(245, 158, 11, 0.95); 
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.95);
         }
-        .alert-info { 
-            background: rgba(52, 152, 219, 0.95); 
+        .alert-info {
+            background: rgba(52, 152, 219, 0.95);
         }
 
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         /* Responsive Design */
@@ -403,7 +479,8 @@
                 margin-bottom: 20px;
             }
 
-            .back-btn, .edit-btn {
+            .back-btn,
+            .edit-btn {
                 align-self: flex-start;
                 width: 100%;
                 justify-content: center;
@@ -439,7 +516,8 @@
                 gap: 20px;
             }
 
-            .personal-grid, .vehicle-grid {
+            .personal-grid,
+            .vehicle-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -456,8 +534,8 @@
             }
 
             #qrcode {
-                width: 180px;
-                height: 180px;
+                width: 200px;
+                height: 200px;
             }
 
             .qr-actions {
@@ -508,8 +586,8 @@
             }
 
             #qrcode {
-                width: 160px;
-                height: 160px;
+                width: 180px;
+                height: 180px;
             }
 
             .alert {
@@ -525,20 +603,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* QR Code Status */
-        .qr-status {
-            margin-bottom: 20px;
-        }
-
-        .qr-help {
-            color: #666;
-            margin-top: 15px;
-            font-size: 14px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
-        }
     </style>
 </head>
 <body>
@@ -549,9 +613,9 @@
                 <i class="fas fa-arrow-left"></i>
                 <span>Back to Home</span>
             </a>
-            
+
             <div class="logo">ParkQueue</div>
-            
+
             <button class="edit-btn" onclick="navigateToEdit()">
                 <i class="fas fa-edit"></i>
                 <span>Edit Profile</span>
@@ -565,16 +629,16 @@
         </div>
 
         <!-- Profile Content -->
-        <div id="profileContent" style="display: none;">
+        <div id="profileContent" style="display: none">
             <!-- Profile Header Card -->
             <div class="glass-card">
                 <div class="profile-header">
                     <div class="profile-avatar" id="profileAvatar">KG</div>
                     <div class="profile-info">
-                        <h1 id="studentName">Kenneth John Galiza</h1>
-                        <h2 id="studentInfo">3rd Year, BSIT-3D</h2>
+                        <h1 id="studentName">Loading...</h1>
+                        <h2 id="studentInfo">Loading...</h2>
                         <div class="status-badge" id="accountStatus">
-                            <i class="fas fa-check-circle"></i> Account Verified
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
                         </div>
                     </div>
                 </div>
@@ -588,35 +652,35 @@
                         <i class="fas fa-user"></i>
                         Personal Information
                     </div>
-                    
+
                     <div class="personal-grid">
                         <div class="info-row">
                             <span class="info-label">Full Name</span>
-                            <span class="info-value" id="fullName">Kenneth John Galiza</span>
+                            <span class="info-value" id="fullName">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Email Address</span>
-                            <span class="info-value" id="email">ken@gmail.com</span>
+                            <span class="info-value" id="email">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Phone Number</span>
-                            <span class="info-value" id="contactNumber">0923-123-1231</span>
+                            <span class="info-value" id="contactNumber">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Student ID</span>
-                            <span class="info-value" id="studentId">-</span>
+                            <span class="info-value" id="studentId">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Course & Year</span>
-                            <span class="info-value" id="courseYear">BSIT - 3rd Year</span>
+                            <span class="info-value" id="courseYear">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Section</span>
-                            <span class="info-value" id="section">3D</span>
+                            <span class="info-value" id="section">Loading...</span>
                         </div>
-                        <div class="info-row" style="grid-column: 1 / -1;">
+                        <div class="info-row" style="grid-column: 1 / -1">
                             <span class="info-label">Address</span>
-                            <span class="info-value" id="address">-</span>
+                            <span class="info-value" id="address">Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -627,35 +691,35 @@
                         <i class="fas fa-motorcycle"></i>
                         Vehicle Information
                     </div>
-                    
+
                     <div class="vehicle-grid">
                         <div class="info-row">
                             <span class="info-label">Vehicle Brand</span>
-                            <span class="info-value" id="vehicleBrand">Honda</span>
+                            <span class="info-value" id="vehicleBrand">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Vehicle Model</span>
-                            <span class="info-value" id="vehicleModel">Click V2 125</span>
+                            <span class="info-value" id="vehicleModel">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Plate Number</span>
-                            <span class="info-value" id="plateNumber">PGI143</span>
+                            <span class="info-value" id="plateNumber">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Vehicle Type</span>
-                            <span class="info-value" id="vehicleType">-</span>
+                            <span class="info-value" id="vehicleType">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">Vehicle Color</span>
-                            <span class="info-value" id="vehicleColor">-</span>
+                            <span class="info-value" id="vehicleColor">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">License Number</span>
-                            <span class="info-value" id="licenseNumber">-</span>
+                            <span class="info-value" id="licenseNumber">Loading...</span>
                         </div>
                         <div class="info-row">
                             <span class="info-label">License Expiry</span>
-                            <span class="info-value" id="licenseExpiry">-</span>
+                            <span class="info-value" id="licenseExpiry">Loading...</span>
                         </div>
                     </div>
                 </div>
@@ -667,28 +731,35 @@
                     <i class="fas fa-qrcode"></i>
                     Parking QR Code
                 </div>
-                
+
                 <div class="qr-status" id="qrStatusContainer">
                     <!-- QR status will be shown here -->
                 </div>
-                
+
+                <!-- UPDATED QR Container -->
                 <div class="qr-container">
                     <div id="qrcode"></div>
                 </div>
-                
+
+                <!-- QR Instructions -->
+                <div class="qr-instructions">
+                    <h4><i class="fas fa-info-circle"></i> Scan Tips:</h4>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Dark background reduces light reflection</li>
+                        <li><i class="fas fa-check-circle"></i> High contrast improves scan accuracy</li>
+                        <li><i class="fas fa-check-circle"></i> Keep QR code flat when scanning</li>
+                        <li><i class="fas fa-check-circle"></i> Ensure good lighting for better results</li>
+                    </ul>
+                </div>
+
                 <div class="qr-actions">
-                    <button class="btn btn-primary" onclick="downloadQRCode()" id="downloadBtn">
+                    <button class="btn btn-primary" onclick="downloadQRCode()" id="downloadBtn" disabled>
                         <i class="fas fa-download"></i> Download QR Code
                     </button>
-                    <button class="btn btn-secondary" onclick="regenerateQR()" id="regenerateBtn">
+                    <button class="btn btn-secondary" onclick="regenerateQR()" id="regenerateBtn" disabled>
                         <i class="fas fa-sync-alt"></i> Regenerate QR
                     </button>
                 </div>
-                
-                <p class="qr-help">
-                    <i class="fas fa-info-circle"></i> Show this QR code to security guard for parking entry/exit. 
-                    The QR code is automatically generated for all registered users.
-                </p>
             </div>
         </div>
     </div>
@@ -706,10 +777,14 @@
             query,
             where,
             getDocs,
-            onAuthStateChanged
+            onAuthStateChanged,
         } from "../firebase.js";
 
         let currentUser = null;
+        let userData = null;
+        let personalInfo = null;
+        let vehicleInfo = null;
+        let qrCanvas = null;
 
         // Initialize
         document.addEventListener("DOMContentLoaded", function () {
@@ -727,137 +802,166 @@
                 });
 
                 if (!currentUser) {
-                    showAlert('Please log in to view your profile', 'error');
-                    setTimeout(() => window.location.href = "../Login&Register.html", 2000);
+                    showAlert("Please log in to view your profile", "error");
+                    setTimeout(
+                        () => (window.location.href = "../Login&Register.html"),
+                        2000
+                    );
                     return;
                 }
 
                 console.log("✅ User authenticated:", currentUser.email);
                 await loadProfileData();
-                
             } catch (error) {
                 console.error("❌ Profile initialization failed:", error);
-                showAlert("Failed to load profile: " + error.message, 'error');
+                showAlert("Failed to load profile: " + error.message, "error");
             }
         }
 
         async function loadProfileData() {
             try {
                 console.log("📥 Loading profile data...");
-                
+
                 // Get user document
                 const userRef = doc(db, "users", currentUser.uid);
                 const userDoc = await getDoc(userRef);
-                
+
                 if (!userDoc.exists()) {
-                    showAlert("User not found. Please complete registration.", 'warning');
-                    setTimeout(() => window.location.href = "../dashboard/dashboard.html", 3000);
+                    showAlert("User not found. Please complete registration.", "warning");
+                    setTimeout(
+                        () => (window.location.href = "../dashboard/dashboard.html"),
+                        3000
+                    );
                     return;
                 }
-                
-                const userData = userDoc.data();
+
+                userData = userDoc.data();
 
                 // Get personal information
-                let personalInfo = {};
+                personalInfo = {};
                 const personalQuery = query(
                     collection(db, "personalInfo"),
                     where("user_id", "==", currentUser.uid)
                 );
                 const personalSnapshot = await getDocs(personalQuery);
-                
+
                 if (!personalSnapshot.empty) {
                     personalInfo = personalSnapshot.docs[0].data();
                 }
 
                 // Get vehicle information
-                let vehicleInfo = {};
+                vehicleInfo = {};
                 const vehicleQuery = query(
                     collection(db, "motorInfo"),
                     where("user_id", "==", currentUser.uid)
                 );
                 const vehicleSnapshot = await getDocs(vehicleQuery);
-                
+
                 if (!vehicleSnapshot.empty) {
                     vehicleInfo = vehicleSnapshot.docs[0].data();
                 }
 
                 // Update UI with user data
-                updateProfileUI(userData, personalInfo, vehicleInfo);
-                
+                updateProfileUI();
+
                 // Generate QR code for all users (no restrictions)
-                generateQRCode(personalInfo, vehicleInfo);
-                showQRCodeSection(userData);
-                
+                generateQRCode();
+                showQRCodeSection();
+
                 // Show content
                 document.getElementById("loadingState").style.display = "none";
                 document.getElementById("profileContent").style.display = "block";
-                
             } catch (error) {
                 console.error("❌ Error loading profile:", error);
-                showAlert("Failed to load profile data: " + error.message, 'error');
+                showAlert("Failed to load profile data: " + error.message, "error");
             }
         }
 
-        function updateProfileUI(userData, personalInfo, vehicleInfo) {
+        function updateProfileUI() {
             // Update avatar
-            const name = personalInfo.first_name || userData.email.split('@')[0] || "U";
+            const name =
+                personalInfo.first_name ||
+                currentUser.email.split("@")[0] ||
+                "U";
             const avatar = document.getElementById("profileAvatar");
             avatar.textContent = name.charAt(0).toUpperCase();
 
             // Update header info
-            const fullName = `${personalInfo.first_name || ""} ${personalInfo.last_name || ""}`.trim();
-            document.getElementById("studentName").textContent = fullName || "User";
+            const fullName = `${personalInfo.first_name || ""} ${
+                personalInfo.last_name || ""
+            }`.trim();
+            document.getElementById("studentName").textContent =
+                fullName || "User";
             document.getElementById("fullName").textContent = fullName || "-";
-            
+
             // Update student info
             const yearLevel = formatYearLevel(personalInfo.year_level);
             const course = personalInfo.course || "";
             const section = personalInfo.section || "";
-            document.getElementById("studentInfo").textContent = 
-                `${yearLevel}${course ? ", " + course : ""}${section ? "-" + section : ""}`.replace(/^, /, '') || "Student";
-            document.getElementById("courseYear").textContent = 
-                `${course || "-"}${yearLevel ? " - " + yearLevel : ""}`;
-            
+            document.getElementById("studentInfo").textContent = `${yearLevel}${
+                course ? ", " + course : ""
+            }${section ? "-" + section : ""}`.replace(/^, /, "") || "Student";
+            document.getElementById("courseYear").textContent = `${
+                course || "-"
+            }${yearLevel ? " - " + yearLevel : ""}`;
+
             // Update personal info
-            document.getElementById("email").textContent = currentUser.email || "-";
-            document.getElementById("contactNumber").textContent = personalInfo.contact_number || "-";
-            document.getElementById("studentId").textContent = personalInfo.student_id || "-";
-            document.getElementById("section").textContent = personalInfo.section || "-";
-            document.getElementById("address").textContent = personalInfo.address || "-";
-            
+            document.getElementById("email").textContent =
+                currentUser.email || "-";
+            document.getElementById("contactNumber").textContent =
+                personalInfo.contact_number || "-";
+            document.getElementById("studentId").textContent =
+                personalInfo.student_id || "-";
+            document.getElementById("section").textContent =
+                personalInfo.section || "-";
+            document.getElementById("address").textContent =
+                personalInfo.address || "-";
+
             // Update vehicle info
-            document.getElementById("vehicleBrand").textContent = vehicleInfo.motorcycle_brand || vehicleInfo.brand || "-";
-            document.getElementById("vehicleModel").textContent = vehicleInfo.motorcycle_model || vehicleInfo.model || "-";
-            document.getElementById("plateNumber").textContent = vehicleInfo.plate_number || "-";
-            document.getElementById("vehicleType").textContent = vehicleInfo.motorcycle_type || vehicleInfo.type || "-";
-            document.getElementById("vehicleColor").textContent = vehicleInfo.motorcycle_color || vehicleInfo.color || "-";
-            document.getElementById("licenseNumber").textContent = vehicleInfo.license_number || "-";
-            
+            document.getElementById("vehicleBrand").textContent =
+                vehicleInfo.motorcycle_brand || vehicleInfo.brand || "-";
+            document.getElementById("vehicleModel").textContent =
+                vehicleInfo.motorcycle_model || vehicleInfo.model || "-";
+            document.getElementById("plateNumber").textContent =
+                vehicleInfo.plate_number || "-";
+            document.getElementById("vehicleType").textContent =
+                vehicleInfo.motorcycle_type || vehicleInfo.type || "-";
+            document.getElementById("vehicleColor").textContent =
+                vehicleInfo.motorcycle_color || vehicleInfo.color || "-";
+            document.getElementById("licenseNumber").textContent =
+                vehicleInfo.license_number || "-";
+
             // Format license expiry date
             if (vehicleInfo.license_expiry) {
-                const expiryDate = vehicleInfo.license_expiry.toDate ? 
-                    vehicleInfo.license_expiry.toDate() : 
-                    new Date(vehicleInfo.license_expiry);
-                document.getElementById("licenseExpiry").textContent = 
-                    expiryDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                const expiryDate = vehicleInfo.license_expiry.toDate
+                    ? vehicleInfo.license_expiry.toDate()
+                    : new Date(vehicleInfo.license_expiry);
+                document.getElementById("licenseExpiry").textContent =
+                    expiryDate.toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                    });
             } else {
                 document.getElementById("licenseExpiry").textContent = "-";
             }
-            
+
             // Update account status
             const accountStatus = document.getElementById("accountStatus");
             if (userData.admin_approved) {
                 accountStatus.className = "status-badge status-approved";
-                accountStatus.innerHTML = '<i class="fas fa-check-circle"></i> Account Verified';
+                accountStatus.innerHTML =
+                    '<i class="fas fa-check-circle"></i> Account Verified';
             } else {
                 accountStatus.className = "status-badge status-pending";
-                accountStatus.innerHTML = '<i class="fas fa-clock"></i> Pending Admin Approval';
+                accountStatus.innerHTML =
+                    '<i class="fas fa-clock"></i> Pending Admin Approval';
             }
         }
 
-        function showQRCodeSection(userData) {
+        function showQRCodeSection() {
             const qrStatusContainer = document.getElementById("qrStatusContainer");
-            
+
             if (userData.admin_approved) {
                 qrStatusContainer.innerHTML = `
                     <div class="status-badge status-approved" style="margin-bottom: 10px;">
@@ -878,7 +982,7 @@
                     </p>
                 `;
             }
-            
+
             // Enable buttons
             document.getElementById("downloadBtn").disabled = false;
             document.getElementById("regenerateBtn").disabled = false;
@@ -886,47 +990,49 @@
             document.getElementById("regenerateBtn").className = "btn btn-secondary";
         }
 
-        function generateQRCode(personalInfo, vehicleInfo) {
+        function generateQRCode() {
             try {
-                console.log("🔄 Generating QR code...");
-                
-                // Create compact QR data
-                const qrData = {
-                    uid: currentUser.uid,
-                    email: currentUser.email || "",
-                    name: `${personalInfo.first_name || ""} ${personalInfo.last_name || ""}`.trim() || "User",
-                    plate: vehicleInfo.plate_number || "",
-                    timestamp: new Date().toISOString()
-                };
-                
-                const qrString = JSON.stringify(qrData);
-                
-                // Clear previous QR
+                console.log("🔄 Generating SIMPLE QR code...");
+
+                // Create SIMPLE QR data - just the user ID as plain text
+                const qrData = currentUser.uid; // Just the Firebase UID
+                console.log("QR contains UID:", qrData);
+
+                // Clear container
                 const qrContainer = document.getElementById("qrcode");
                 qrContainer.innerHTML = "";
-                
-                // Generate QR code
-                const qr = qrcode(0, 'H');
-                qr.addData(qrString);
+
+                // Check if qrcode library is loaded
+                if (typeof qrcode === "undefined") {
+                    console.error("QR code library not loaded!");
+                    showErrorQR("QR code library not loaded. Please refresh the page.");
+                    return;
+                }
+
+                // Create QR code using qrcode-generator library
+                const typeNumber = 0; // Auto detect
+                const errorCorrectionLevel = "H"; // High error correction (30%)
+                const qr = qrcode(typeNumber, errorCorrectionLevel);
+                qr.addData(qrData);
                 qr.make();
-                
-                // Create image
-                const cellSize = 5;
-                const margin = 2;
+
+                // Create canvas for better quality and download capability
+                const cellSize = 6;
+                const margin = 4;
                 const size = qr.getModuleCount();
-                const canvas = document.createElement('canvas');
-                const imgSize = (size + margin * 2) * cellSize;
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                const canvasSize = (size + margin * 2) * cellSize;
                 
-                canvas.width = imgSize;
-                canvas.height = imgSize;
-                const ctx = canvas.getContext('2d');
-                
-                // White background
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(0, 0, imgSize, imgSize);
-                
-                // Draw QR code
-                ctx.fillStyle = '#2b9103'; // Green color to match theme
+                canvas.width = canvasSize;
+                canvas.height = canvasSize;
+
+                // Fill with white background
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+                // Draw QR code in black
+                ctx.fillStyle = "#000000";
                 for (let row = 0; row < size; row++) {
                     for (let col = 0; col < size; col++) {
                         if (qr.isDark(row, col)) {
@@ -939,76 +1045,76 @@
                         }
                     }
                 }
-                
-                // Add logo in center
-                const logoSize = cellSize * 5;
-                const logoX = imgSize / 2 - logoSize / 2;
-                const logoY = imgSize / 2 - logoSize / 2;
-                ctx.fillStyle = '#FFFFFF';
-                ctx.fillRect(logoX, logoY, logoSize, logoSize);
-                ctx.fillStyle = '#2b9103';
-                ctx.font = `${logoSize * 0.7}px Arial`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('P', imgSize / 2, imgSize / 2);
-                
+
+                // Create img element from canvas
+                const img = document.createElement("img");
+                img.src = canvas.toDataURL("image/png");
+                img.style.width = "100%";
+                img.style.height = "100%";
+                img.style.borderRadius = "5px";
+
                 // Add to container
-                const img = document.createElement('img');
-                img.src = canvas.toDataURL('image/png');
-                img.style.width = '200px';
-                img.style.height = '200px';
-                img.style.borderRadius = '5px';
                 qrContainer.appendChild(img);
-                
+
                 // Store canvas for download
                 window.qrCanvas = canvas;
-                
-                console.log("✅ QR code generated");
-                
+
+                console.log("✅ QR code generated successfully");
+                showAlert("QR code generated successfully!", "success");
+
             } catch (error) {
-                console.error('❌ Error generating QR code:', error);
-                showAlert('Error generating QR code: ' + error.message, 'error');
-                
-                // Show error message
-                const qrContainer = document.getElementById("qrcode");
-                qrContainer.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
-                        <p>Failed to generate QR code</p>
-                        <p style="font-size: 12px; margin-top: 10px;">Please try refreshing the page</p>
-                    </div>
-                `;
+                console.error("❌ Error generating QR code:", error);
+                showErrorQR("Error generating QR code: " + error.message);
             }
+        }
+
+        function showErrorQR(message) {
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                    <p>${message || "Failed to generate QR code"}</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Please try refreshing the page</p>
+                </div>
+            `;
+            showAlert("Failed to generate QR code", "error");
         }
 
         function downloadQRCode() {
             try {
                 if (!window.qrCanvas) {
-                    showAlert('QR code not available', 'warning');
+                    showAlert("QR code not available", "warning");
                     return;
                 }
-                
-                const timestamp = new Date().toISOString().split('T')[0];
-                const filename = `parkqueue-${currentUser.uid.slice(-8)}-${timestamp}.png`;
-                
+
+                const studentName = `${
+                    personalInfo.first_name || "user"
+                }_${personalInfo.last_name || "id"}`.toLowerCase();
+                const timestamp = new Date().toISOString().split("T")[0];
+                const filename = `parkqueue_${studentName}_${timestamp}.png`;
+
                 const link = document.createElement("a");
                 link.download = filename;
                 link.href = window.qrCanvas.toDataURL("image/png");
                 link.click();
-                
-                showAlert('QR code downloaded successfully!', 'success');
-                
+
+                showAlert("QR code downloaded successfully!", "success");
             } catch (error) {
-                console.error('❌ Error downloading QR code:', error);
-                showAlert('Failed to download QR code', 'error');
+                console.error("❌ Error downloading QR code:", error);
+                showAlert("Failed to download QR code", "error");
             }
         }
 
         function regenerateQR() {
-            showAlert('Regenerating QR code...', 'info');
+            showAlert("Regenerating QR code...", "info");
             
-            // Get fresh data
-            loadProfileData();
+            // Clear and regenerate
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Generating...</div>';
+            
+            setTimeout(() => {
+                generateQRCode();
+            }, 500);
         }
 
         function navigateToEdit() {
@@ -1016,32 +1122,38 @@
         }
 
         function formatYearLevel(year) {
-            if (!year) return '';
+            if (!year) return "";
             const yearMap = {
-                '1': '1st Year',
-                '2': '2nd Year',
-                '3': '3rd Year',
-                '4': '4th Year',
-                '5': '5th Year'
+                1: "1st Year",
+                2: "2nd Year",
+                3: "3rd Year",
+                4: "4th Year",
+                5: "5th Year",
             };
             return yearMap[year] || year;
         }
 
-        function showAlert(message, type = 'info') {
-            const alertDiv = document.createElement('div');
+        function showAlert(message, type = "info") {
+            const alertDiv = document.createElement("div");
             alertDiv.className = `alert alert-${type}`;
             alertDiv.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <i class="fas fa-${
+                    type === "success"
+                        ? "check-circle"
+                        : type === "error"
+                        ? "exclamation-circle"
+                        : "info-circle"
+                }"></i>
                 ${message}
             `;
-            
-            const container = document.getElementById('alertContainer');
-            container.innerHTML = '';
+
+            const container = document.getElementById("alertContainer");
+            container.innerHTML = "";
             container.appendChild(alertDiv);
-            
+
             // Auto remove after 5 seconds
             setTimeout(() => {
-                alertDiv.style.opacity = '0';
+                alertDiv.style.opacity = "0";
                 setTimeout(() => {
                     if (alertDiv.parentNode) {
                         alertDiv.parentNode.removeChild(alertDiv);
@@ -1056,5 +1168,4 @@
         window.navigateToEdit = navigateToEdit;
     </script>
 </body>
-
 </html>
