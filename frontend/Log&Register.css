@@ -492,48 +492,61 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-/* Mobile Styles with Vertical Sliding */
 @media (max-width: 768px) {
+    body {
+        padding: 0;
+        margin: 0;
+        display: block;
+        min-height: 100vh;
+        background: linear-gradient(210deg, #b6b303 0%, var(--medium-green) 25%, #023d02 50%, #b6b303 100%);
+    }
+
     .container {
         flex-direction: column;
         width: 100%;
-        height: auto;
-        min-height: 100vh;
+        height: 100vh;
+        max-width: 100%;
+        max-height: 100%;
         border-radius: 0;
         overflow: hidden;
+        box-shadow: none;
+        position: fixed;
+        top: 0;
+        left: 0;
     }
 
     .form-container,
     .image-container {
-        position: relative;
+        position: absolute;
         width: 100%;
-        height: 50vh;
-        min-height: 50vh;
-        transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+        left: 0;
+        right: 0;
+        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .form-container {
-        order: 1;
+        z-index: 10;
+        background: var(--gray-light);
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         transform: translateY(0);
-        height: 60vh;
-        padding: 30px 25px;
-        overflow-y: auto;
-        overflow-x: hidden;
     }
 
     .image-container {
-        order: 2;
-        height: 40vh;
-        transform: translateY(0);
+        z-index: 5;
+        background: #000;
+        transform: translateY(100%);
     }
 
-    /* Vertical slide animations */
     .form-container.slide-down {
         transform: translateY(-100%);
     }
 
     .image-container.slide-up {
-        transform: translateY(-100%);
+        transform: translateY(0);
     }
 
     .form-container.slide-up {
@@ -544,21 +557,168 @@ body {
         transform: translateY(100%);
     }
 
-    /* Logo overlay adjustments for mobile */
+    .bike-image {
+        object-fit: cover;
+        height: 100%;
+        width: 100%;
+    }
+
     .logo-overlay {
+        position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+        text-align: center;
+        width: 90%;
     }
 
     .logo-text {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
+        color: var(--light-green);
+        text-shadow: 0 0 20px rgba(180, 255, 100, 0.8);
     }
 
-    /* Form adjustments */
     .form-content {
         max-width: 100%;
-        padding: 0 10px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .logo-small {
+        font-size: 1.4rem;
+        margin-bottom: 30px;
+        color: #333;
+    }
+
+    .logo-small img {
+        height: 45px;
+        width: 45px;
+    }
+
+    .acc-reg {
+        margin-bottom: 25px;
+    }
+
+    .acc-text {
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .input-group {
+        margin-bottom: 20px;
+    }
+
+    .input-group input {
+        padding: 16px 50px 16px 15px;
+        font-size: 16px;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+    }
+
+    .input-group .icon {
+        right: 15px;
+        font-size: 20px;
+    }
+
+    .checkbox-group {
+        margin: 20px 0;
+        font-size: 14px;
+    }
+
+    .forgot-password {
+        margin: 15px 0;
+    }
+
+    .forgot-password a {
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        margin: 20px 0;
+    }
+
+    .social-btn {
+        padding: 14px;
+        font-size: 15px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+    }
+
+    .social-btn span {
+        width: 22px;
+        height: 22px;
+        font-size: 13px;
+    }
+
+    .link-text {
+        font-size: 14px;
+        margin: 20px 0;
+    }
+
+    .divider {
+        margin: 25px 0;
+        font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+        width: 35%;
+    }
+
+    .error-message {
+        font-size: 13px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+
+    .form-container.slide-right,
+    .image-container.slide-left {
+        transform: none;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-container {
+        order: 1;
+    }
+
+    .image-container {
+        order: 2;
+    }
+
+    .form-container {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    @supports (padding: max(0px)) {
+        .form-container {
+            padding-left: max(20px, env(safe-area-inset-left));
+            padding-right: max(20px, env(safe-area-inset-right));
+            padding-bottom: max(20px, env(safe-area-inset-bottom));
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .form-content {
+        padding: 15px;
+        max-width: 350px;
+        border-radius: 15px;
     }
 
     .logo-small {
@@ -566,14 +726,24 @@ body {
         margin-bottom: 25px;
     }
 
+    .logo-small img {
+        height: 40px;
+        width: 40px;
+    }
+
     .acc-text {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         margin-bottom: 25px;
     }
 
     .input-group input {
-        padding: 14px 45px 14px 15px;
-        font-size: 14px;
+        padding: 14px 45px 14px 12px;
+        font-size: 15px;
+    }
+
+    .input-group .icon {
+        right: 12px;
+        font-size: 18px;
     }
 
     .btn-primary {
@@ -586,49 +756,24 @@ body {
         font-size: 14px;
     }
 
-    .verification-section {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .btn-secondary {
-        width: 100%;
-    }
-
-    /* Hide desktop animations on mobile */
-    .form-container.slide-right,
-    .image-container.slide-left {
-        transform: none;
+    .logo-text {
+        font-size: 2.5rem;
     }
 }
 
-/* Small mobile devices */
-@media (max-width: 480px) {
-    body {
-        padding: 0;
-        margin: 0;
-    }
-
-    .container {
-        border-radius: 0;
-    }
-
-    .form-container {
-        height: 55vh;
-        padding: 25px 20px;
-    }
-
-    .image-container {
-        height: 45vh;
-    }
-
-    .logo-text {
-        font-size: 2rem;
+@media (max-width: 360px) {
+    .form-content {
+        padding: 12px;
+        max-width: 320px;
     }
 
     .logo-small {
         font-size: 1.2rem;
-        margin-bottom: 20px;
+    }
+
+    .logo-small img {
+        height: 35px;
+        width: 35px;
     }
 
     .acc-text {
@@ -636,8 +781,8 @@ body {
     }
 
     .input-group input {
-        padding: 12px 40px 12px 12px;
-        font-size: 13px;
+        padding: 12px 40px 12px 10px;
+        font-size: 14px;
     }
 
     .btn-primary {
@@ -650,42 +795,68 @@ body {
         font-size: 13px;
     }
 
-    .divider {
-        margin: 20px 0;
-    }
-
-    .link-text {
-        font-size: 14px;
-        margin-bottom: 20px;
+    .logo-text {
+        font-size: 2.2rem;
     }
 }
 
-/* Tablet devices */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .container {
-        width: 90%;
-        height: 550px;
+@media (min-width: 481px) and (max-width: 768px) {
+    .form-content {
+        max-width: 450px;
+        padding: 25px;
     }
 
-    .form-container {
-        padding: 35px 30px;
+    .logo-small {
+        font-size: 1.5rem;
+    }
+
+    .logo-small img {
+        height: 50px;
+        width: 50px;
+    }
+
+    .acc-text {
+        font-size: 1.7rem;
+    }
+
+    .input-group input {
+        padding: 18px 55px 18px 18px;
+        font-size: 17px;
+    }
+
+    .btn-primary {
+        padding: 18px;
+        font-size: 17px;
+    }
+
+    .social-btn {
+        padding: 15px;
+        font-size: 16px;
     }
 
     .logo-text {
-        font-size: 2.8rem;
+        font-size: 3rem;
     }
 }
 
-/* Landscape mode on mobile */
 @media (max-height: 600px) and (max-width: 768px) {
+    .container {
+        flex-direction: row;
+    }
+
     .form-container,
     .image-container {
-        height: 50vh;
-        min-height: 50vh;
+        width: 50%;
+        height: 100%;
     }
 
     .form-container {
-        padding: 20px 15px;
+        padding: 15px;
+    }
+
+    .form-content {
+        max-width: 100%;
+        padding: 15px;
     }
 
     .logo-text {
@@ -696,83 +867,69 @@ body {
         margin-bottom: 15px;
     }
 
-    .input-group {
-        margin-bottom: 8px;
-    }
-
-    .btn-primary {
-        margin-bottom: 10px;
-    }
-}
-
-/* Very small screens */
-@media (max-width: 320px) {
-    .form-container {
-        padding: 20px 15px;
-    }
-
-    .logo-small {
-        font-size: 1.1rem;
-    }
-
     .acc-text {
-        font-size: 1.1rem;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
     }
 
-    .input-group input {
-        padding: 10px 35px 10px 10px;
-        font-size: 12px;
+    .input-group {
+        margin-bottom: 12px;
     }
 
     .btn-primary {
-        padding: 10px;
-        font-size: 13px;
+        margin-bottom: 12px;
+        padding: 12px;
     }
 
     .social-btn {
-        padding: 8px;
-        font-size: 12px;
+        margin-bottom: 8px;
+        padding: 10px;
     }
 
-    .logo-overlay svg {
-        width: 50px;
-        height: 50px;
-        margin-bottom: 10px;
+    .divider {
+        margin: 15px 0;
     }
 }
 
-@media (prefers-contrast: high) {
-    .input-group input {
-        border-width: 3px;
-    }
-
-    .btn-primary {
-        border: 2px solid #000;
+@media screen and (max-width: 768px) {
+    input,
+    select,
+    textarea {
+        font-size: 16px !important;
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-    * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+@media (max-width: 768px) {
+    button,
+    .btn-primary,
+    .social-btn,
+    input[type="submit"],
+    input[type="button"] {
+        min-height: 44px;
+        min-width: 44px;
     }
 }
 
-.form-container::-webkit-scrollbar {
-    width: 6px;
+@media (max-width: 768px) {
+    html,
+    body {
+        overflow-x: hidden;
+        width: 100%;
+    }
+    
+    .container,
+    .form-container,
+    .image-container {
+        max-width: 100vw;
+    }
 }
 
-.form-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 3px;
-}
-
-.form-container::-webkit-scrollbar-thumb {
-    background: #c1c1c1;
-    border-radius: 3px;
-}
-
-.form-container::-webkit-scrollbar-thumb:hover {
-    background: #a8a8a8;
+@media (max-width: 768px) {
+    .form-container::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    .form-container::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+    }
 }

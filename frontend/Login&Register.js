@@ -1,4 +1,3 @@
-// Error display functions for inline validation feedback
 function showError(inputId, message) {
     const input = document.getElementById(inputId);
     const inputGroup = input.parentElement;
@@ -20,7 +19,6 @@ function showError(inputId, message) {
     }, 500);
 }
 
-// Remove error styling and message from specific input
 function clearError(inputId) {
     const input = document.getElementById(inputId);
     const errorMsg = document.getElementById(`${inputId}-error`);
@@ -34,7 +32,6 @@ function clearError(inputId) {
     }
 }
 
-// Clear all error messages from the page
 function clearAllErrors() {
     const errorInputs = document.querySelectorAll('.input-error');
     const errorMessages = document.querySelectorAll('.error-message');
@@ -43,37 +40,43 @@ function clearAllErrors() {
     errorMessages.forEach(msg => msg.remove());
 }
 
-// Check if mobile device
 function isMobileDevice() {
     return window.innerWidth <= 768;
 }
 
-// Switch from login form to registration form
 function switchToRegister(e) {
     e.preventDefault();
     clearAllErrors();
     
     if (isMobileDevice()) {
-        // Mobile: vertical sliding
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         
-        // Slide form down and image up
+        formContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        imageContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        
         formContainer.classList.add('slide-down');
         imageContainer.classList.add('slide-up');
         
-        // Switch forms after animation
         setTimeout(() => {
             loginForm.style.display = 'none';
             registerForm.style.display = 'block';
-            // Reverse positions for next switch
-            formContainer.style.order = '2';
-            imageContainer.style.order = '1';
-        }, 400);
+            
+            setTimeout(() => {
+                formContainer.classList.remove('slide-down');
+                imageContainer.classList.remove('slide-up');
+                formContainer.classList.add('slide-up');
+                imageContainer.classList.add('slide-down');
+            }, 50);
+        }, 500);
+        
+        setTimeout(() => {
+            const registerEmail = document.getElementById('registerEmail');
+            if (registerEmail) registerEmail.focus();
+        }, 550);
     } else {
-        // Desktop: horizontal sliding
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         const loginForm = document.getElementById('loginForm');
@@ -89,32 +92,39 @@ function switchToRegister(e) {
     }
 }
 
-// Switch from registration form to login form
 function switchToLogin(e) {
     e.preventDefault();
     clearAllErrors();
     
     if (isMobileDevice()) {
-        // Mobile: vertical sliding
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         const loginForm = document.getElementById('loginForm');
         const registerForm = document.getElementById('registerForm');
         
-        // Remove slide classes for animation
-        formContainer.classList.remove('slide-down');
-        imageContainer.classList.remove('slide-up');
+        formContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        imageContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
         
-        // Switch forms after animation
+        formContainer.classList.add('slide-up');
+        imageContainer.classList.add('slide-down');
+        
         setTimeout(() => {
             registerForm.style.display = 'none';
             loginForm.style.display = 'block';
-            // Restore original order
-            formContainer.style.order = '1';
-            imageContainer.style.order = '2';
-        }, 400);
+            
+            setTimeout(() => {
+                formContainer.classList.remove('slide-up');
+                imageContainer.classList.remove('slide-down');
+                formContainer.classList.add('slide-down');
+                imageContainer.classList.add('slide-up');
+            }, 50);
+        }, 500);
+        
+        setTimeout(() => {
+            const loginEmail = document.getElementById('loginEmail');
+            if (loginEmail) loginEmail.focus();
+        }, 550);
     } else {
-        // Desktop: horizontal sliding
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         const loginForm = document.getElementById('loginForm');
@@ -130,10 +140,8 @@ function switchToLogin(e) {
     }
 }
 
-// Handle window resize
 window.addEventListener('resize', function() {
     if (!isMobileDevice()) {
-        // Reset mobile styles when going back to desktop
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         
@@ -144,7 +152,6 @@ window.addEventListener('resize', function() {
     }
 });
 
-// Handle Google OAuth login with fallback
 async function handleGoogleLogin() {
     try {
         console.log('🔐 Starting Google login...');
@@ -161,7 +168,6 @@ async function handleGoogleLogin() {
     }
 }
 
-// Direct Google authentication implementation
 async function signInWithGoogleDirect() {
     try {
         const provider = new GoogleAuthProvider();
@@ -212,7 +218,6 @@ async function signInWithGoogleDirect() {
     }
 }
 
-// Handle user registration with email and password
 async function handleRegistration() {
     const email = document.getElementById('registerEmail').value;
     const username = document.getElementById('registerUsername').value;
@@ -285,7 +290,6 @@ async function handleRegistration() {
     }
 }
 
-// Handle user login with email and password
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -340,7 +344,6 @@ function resetLoginButton() {
     }
 }
 
-// Handle forgot password
 async function handleForgotPassword() {
     const email = document.getElementById('loginEmail')?.value;
     
@@ -375,7 +378,6 @@ async function handleForgotPassword() {
     }
 }
 
-// Toggle password visibility
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById(inputId + 'Icon');
@@ -391,7 +393,6 @@ function togglePassword(inputId) {
     }
 }
 
-// Clear all fields in registration form
 function clearRegisterForm() {
     clearAllErrors();
     document.getElementById('registerEmail').value = '';
@@ -400,18 +401,14 @@ function clearRegisterForm() {
     document.getElementById('confirmPassword').value = '';
 }
 
-// Clear all fields in login form
 function clearLoginForm() {
     clearAllErrors();
     document.getElementById('loginEmail').value = '';
     document.getElementById('loginPassword').value = '';
 }
 
-// Initialize event listeners when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize based on device
     if (isMobileDevice()) {
-        // Set initial order for mobile
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         formContainer.style.order = '1';
@@ -457,11 +454,9 @@ document.addEventListener('DOMContentLoaded', () => {
         confirmPassword.addEventListener('keypress', handleRegisterEnter);
     }
 
-    // Auto-focus first input
     const loginEmailInput = document.getElementById('loginEmail');
     if (loginEmailInput) loginEmailInput.focus();
 
-    // Loading state for login button
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) {
         loginBtn.addEventListener('click', function () {
@@ -471,7 +466,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Export functions to global scope
 window.handleRegistration = handleRegistration;
 window.handleLogin = handleLogin;
 window.handleGoogleLogin = handleGoogleLogin;
