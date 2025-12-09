@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParkQueue - Parking</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <!-- Use the same QR code library as profile page -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <style>
         /* [Keep all the same CSS styles from previous version] */
         * {
@@ -189,18 +190,62 @@
             margin-top: 20px;
         }
 
+        /* Use the same dark QR container as profile page */
         .qr-code-wrapper {
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 15px;
+            background: linear-gradient(135deg, #5d4037 0%, #3e2723 50%, #5d4037 100%);
+            padding: 30px;
+            border-radius: 20px;
             display: inline-block;
-            border: 2px solid #2b9103;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-code-wrapper::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(
+                    circle at 30% 30%,
+                    rgba(255, 255, 255, 0.05) 1px,
+                    transparent 1px
+                ),
+                radial-gradient(
+                    circle at 70% 70%,
+                    rgba(0, 0, 0, 0.05) 1px,
+                    transparent 1px
+                );
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 1;
         }
 
         #qrCode {
-            width: 200px;
-            height: 200px;
+            width: 250px;
+            height: 250px;
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #qrCode canvas,
+        #qrCode img {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 5px;
         }
 
         .qr-message {
@@ -211,10 +256,41 @@
         }
 
         .qr-instructions {
-            color: #666;
-            font-size: 14px;
-            margin-top: 15px;
-            line-height: 1.6;
+            background: rgba(93, 64, 55, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .qr-instructions h4 {
+            color: #5d4037;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .qr-instructions li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(93, 64, 55, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qr-instructions li:last-child {
+            border-bottom: none;
+        }
+
+        .qr-instructions i {
+            color: #5d4037;
         }
 
         /* Parking Info */
@@ -414,8 +490,12 @@
             }
 
             #qrCode {
-                width: 150px;
-                height: 150px;
+                width: 200px;
+                height: 200px;
+            }
+
+            .qr-code-wrapper {
+                padding: 20px;
             }
 
             .box {
@@ -439,8 +519,8 @@
             }
 
             #qrCode {
-                width: 120px;
-                height: 120px;
+                width: 180px;
+                height: 180px;
             }
         }
 
@@ -531,9 +611,16 @@
                         <div id="qrCode"></div>
                     </div>
                     <div id="qrMessage" class="qr-message">Please show to CDM guard to be scanned</div>
+                    
+                    <!-- QR Instructions matching profile page -->
                     <div class="qr-instructions">
-                        This QR contains your unique parking session information.<br>
-                        Do not share this code with others.
+                        <h4><i class="fas fa-info-circle"></i> Scan Tips:</h4>
+                        <ul>
+                            <li><i class="fas fa-check-circle"></i> Dark background reduces light reflection</li>
+                            <li><i class="fas fa-check-circle"></i> High contrast improves scan accuracy</li>
+                            <li><i class="fas fa-check-circle"></i> Keep QR code flat when scanning</li>
+                            <li><i class="fas fa-check-circle"></i> Ensure good lighting for better results</li>
+                        </ul>
                     </div>
                 </div>
 
@@ -609,8 +696,11 @@
         </div>
     </div>
 
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <script type="module">
-        // Import Firebase modules - CORRECTED for Firebase v10.7.1
+        // Import Firebase modules
         import {
             auth,
             db,
@@ -624,8 +714,7 @@
             getDocs,
             Timestamp,
             onAuthStateChanged,
-            getOptimizedQRData,
-            onSnapshot  // This is the correct way to import onSnapshot in v10
+            onSnapshot
         } from "../firebase.js";
 
         // Global variables
@@ -975,64 +1064,49 @@
 
         // Handle park button click
         async function handleParkButton() {
-            try {
-                showLoading();
-                hideMessages();
-                
-                if (!isParked) {
-                    // Starting new parking session - Generate Entry QR
-                    await generateEntryQR();
-                } else {
-                    // Ending parking session - Generate Exit QR
-                    await generateExitQR();
-                }
-                
-                hideLoading();
-            } catch (error) {
-                console.error('❌ Parking action error:', error);
-                showError(error.message || 'Failed to process parking request');
-                hideLoading();
-            }
+    try {
+        showLoading();
+        hideMessages();
+        
+        // Hide any existing QR code first
+        hideQRCode();
+        
+        if (!isParked) {
+            // Starting new parking session - Generate Entry QR
+            await generateEntryQR();
+        } else {
+            // Ending parking session - Generate Exit QR
+            await generateExitQR();
         }
+        
+        hideLoading();
+    } catch (error) {
+        console.error('❌ Parking action error:', error);
+        showError(error.message || 'Failed to process parking request');
+        hideLoading();
+        // Re-enable button on error
+        parkBtn.disabled = false;
+    }
+}
 
-        // Generate Entry QR Code
+
+        // Generate Entry QR Code - SIMPLIFIED to match profile page
         async function generateEntryQR() {
             try {
-                // Get user data for QR code
-                const userData = await getOptimizedQRData();
-                if (!userData) {
-                    throw new Error('Cannot generate QR code. Please complete your profile.');
-                }
-
-                // Create QR data for entry
-                const qrData = {
-                    // User identification
-                    uid: currentUser.uid,
-                    email: currentUser.email,
-                    
-                    // User personal info (from getOptimizedQRData)
-                    ...userData,
-                    
-                    // Parking request info
-                    action: 'entry',
-                    timestamp: Date.now(),
-                    type: 'parking_request',
-                    
-                    // Additional verification data
-                    request_id: `ENTRY_${currentUser.uid}_${Date.now()}`,
-                    status: 'pending'
-                };
-
+                // Create SIMPLE QR data - just the user UID
+                const qrData = currentUser.uid; // Just the Firebase UID
+                console.log('🔄 Generating ENTRY QR with UID:', qrData);
+                
                 // Generate QR code
-                await generateQRCode(JSON.stringify(qrData));
+                await generateQRCode(qrData, 'entry');
                 
                 // Update UI
-                qrMessage.textContent = 'Please show to CDM guard to be scanned';
-                showSuccess('QR code generated. Show to guard for entry.');
+                qrMessage.textContent = 'Please show to CDM guard to be scanned for ENTRY';
+                showSuccess('Entry QR code generated. Show to guard for parking access.');
                 
                 // Disable park button while QR is displayed
                 parkBtn.disabled = true;
-                parkBtn.textContent = 'QR CODE DISPLAYED';
+                parkBtn.textContent = 'ENTRY QR DISPLAYED';
 
             } catch (error) {
                 console.error('❌ Error generating entry QR:', error);
@@ -1040,47 +1114,22 @@
             }
         }
 
-        // Generate Exit QR Code
+        // Generate Exit QR Code - SIMPLIFIED to match profile page
         async function generateExitQR() {
             try {
                 if (!currentSlotId) {
                     throw new Error('No active parking session found.');
                 }
 
-                // Get user data for QR code
-                const userData = await getOptimizedQRData();
-                if (!userData) {
-                    throw new Error('Cannot generate QR code. Please complete your profile.');
-                }
-
-                // Create QR data for exit
-                const qrData = {
-                    // User identification
-                    uid: currentUser.uid,
-                    email: currentUser.email,
-                    
-                    // User personal info (from getOptimizedQRData)
-                    ...userData,
-                    
-                    // Parking exit info
-                    action: 'exit',
-                    timestamp: Date.now(),
-                    type: 'exit_request',
-                    
-                    // Slot information
-                    slot_id: currentSlotId,
-                    slot_number: currentSlotData?.slotId || 'Unknown',
-                    
-                    // Additional verification data
-                    request_id: `EXIT_${currentUser.uid}_${Date.now()}`,
-                    status: 'pending'
-                };
-
+                // Create SIMPLE QR data - just the user UID with exit flag
+                const qrData = currentUser.uid; // Same UID, admin system will handle exit logic
+                console.log('🔄 Generating EXIT QR with UID:', qrData);
+                
                 // Generate QR code
-                await generateQRCode(JSON.stringify(qrData));
+                await generateQRCode(qrData, 'exit');
                 
                 // Update UI
-                qrMessage.textContent = 'To exit, show this again to security guard';
+                qrMessage.textContent = 'To exit, show this QR code to security guard';
                 showSuccess('Exit QR code generated. Show to guard when leaving.');
                 
                 // Disable park button while QR is displayed
@@ -1093,73 +1142,97 @@
             }
         }
 
-       // Generate QR code
-// Generate QR code - SIMPLER VERSION
-async function generateQRCode(data) {
-    return new Promise((resolve, reject) => {
-        try {
-            // Clear previous QR code
-            qrCodeDiv.innerHTML = '';
-            
-            // Check if QRCode constructor is available
-            if (typeof QRCode === 'undefined') {
-                // Try loading the library dynamically
-                loadQRCodeLibrary().then(() => {
-                    createQRCode(data, resolve, reject);
-                }).catch(err => {
-                    reject(new Error('QRCode library failed to load: ' + err.message));
-                });
-            } else {
-                createQRCode(data, resolve, reject);
-            }
-        } catch (error) {
-            console.error('❌ QR code error:', error);
-            reject(error);
-        }
-    });
-}
+        // Generate QR code - SIMPLIFIED to match profile page
+        async function generateQRCode(data, action = 'entry') {
+            return new Promise((resolve, reject) => {
+                try {
+                    console.log('🎨 Creating QR code with data:', data);
+                    
+                    // Clear previous QR code
+                    qrCodeDiv.innerHTML = '';
+                    
+                    // Check if qrcode library is loaded
+                    if (typeof qrcode === 'undefined') {
+                        console.error('QR code library not loaded!');
+                        reject(new Error('QR code library not loaded'));
+                        return;
+                    }
 
-// Helper function to load QRCode library
-function loadQRCodeLibrary() {
-    return new Promise((resolve, reject) => {
-        // Check if already loaded
-        if (typeof QRCode !== 'undefined') {
-            resolve();
-            return;
-        }
-        
-        // Load the library
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
-        script.onload = resolve;
-        script.onerror = () => reject(new Error('Failed to load QRCode library'));
-        document.head.appendChild(script);
-    });
-}
+                    // Create QR code using qrcode-generator library (same as profile page)
+                    const typeNumber = 0; // Auto detect
+                    const errorCorrectionLevel = 'H'; // High error correction (30%)
+                    const qr = qrcode(typeNumber, errorCorrectionLevel);
+                    qr.addData(data);
+                    qr.make();
 
-// Helper function to create QR code
-function createQRCode(data, resolve, reject) {
-    try {
-        qrCodeDiv.innerHTML = '';
-        
-        // Create QR code using constructor method (most reliable)
-        new QRCode(qrCodeDiv, {
-            text: data,
-            width: 200,
-            height: 200,
-            colorDark: "#2b9103",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        // Show QR container
-        qrContainer.style.display = 'block';
-        resolve();
-    } catch (error) {
-        console.error('❌ QR creation error:', error);
-        reject(error);
-    }
-}
+                    // Create canvas for better quality
+                    const cellSize = 6;
+                    const margin = 4;
+                    const size = qr.getModuleCount();
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const canvasSize = (size + margin * 2) * cellSize;
+                    
+                    canvas.width = canvasSize;
+                    canvas.height = canvasSize;
+
+                    // Fill with white background
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvasSize, canvasSize);
+
+                    // Draw QR code in black
+                    ctx.fillStyle = '#000000';
+                    for (let row = 0; row < size; row++) {
+                        for (let col = 0; col < size; col++) {
+                            if (qr.isDark(row, col)) {
+                                ctx.fillRect(
+                                    (col + margin) * cellSize,
+                                    (row + margin) * cellSize,
+                                    cellSize,
+                                    cellSize
+                                );
+                            }
+                        }
+                    }
+
+                    // Create img element from canvas
+                    const img = document.createElement('img');
+                    img.src = canvas.toDataURL('image/png');
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.borderRadius = '5px';
+
+                    // Add to container
+                    qrCodeDiv.appendChild(img);
+
+                    // Store canvas for potential future use
+                    window.qrCanvas = canvas;
+
+                    // Show QR container
+                    qrContainer.style.display = 'block';
+                    
+                    console.log('✅ QR code generated successfully');
+                    resolve();
+                    
+                } catch (error) {
+                    console.error('❌ QR creation error:', error);
+                    showErrorQR('Error generating QR code: ' + error.message);
+                    reject(error);
+                }
+            });
+        }
+
+        // Show error in QR container
+        function showErrorQR(message) {
+            qrCodeDiv.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                    <p>${message || 'Failed to generate QR code'}</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Please try again</p>
+                </div>
+            `;
+            qrContainer.style.display = 'block';
+        }
 
         // Hide QR code
         function hideQRCode() {
