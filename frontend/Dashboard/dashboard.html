@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ParkQueue - Dashboard</title>
+    <title>ParkQueue</title>
+    <link rel="icon" type="image/jpg" href="../../img/logow.png" />
     <style>
       * {
         margin: 0;
@@ -29,7 +30,6 @@
         margin: 0 auto;
       }
 
-      /* Header */
       .header {
         display: flex;
         justify-content: space-between;
@@ -45,7 +45,13 @@
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
       }
 
-      .logout-btn {
+      .header-buttons {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-btn {
         background: rgba(255, 255, 255, 0.15);
         color: white;
         border: 1px solid rgba(255, 255, 255, 0.3);
@@ -60,12 +66,20 @@
         gap: 6px;
       }
 
-      .logout-btn:hover {
+      .header-btn:hover {
         background: rgba(255, 255, 255, 0.25);
         transform: translateY(-1px);
       }
 
-      /* Loading State */
+      .team-btn {
+        background: rgba(255, 193, 7, 0.15);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+      }
+
+      .team-btn:hover {
+        background: rgba(255, 193, 7, 0.25);
+      }
+
       .loading {
         text-align: center;
         padding: 100px 20px;
@@ -87,7 +101,6 @@
         100% { transform: rotate(360deg); }
       }
 
-      /* Main Dashboard Grid */
       .dashboard-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -95,7 +108,6 @@
         margin-bottom: 25px;
       }
 
-      /* Box Styling - Square Format */
       .box {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 20px;
@@ -114,7 +126,6 @@
         box-shadow: 0 12px 35px rgba(43, 145, 3, 0.25);
       }
 
-      /* Profile Box */
       .profile-box {
         cursor: pointer;
       }
@@ -195,7 +206,6 @@
         display: inline-block;
       }
 
-      /* Parking Box */
       .parking-header {
         margin-bottom: 20px;
       }
@@ -212,7 +222,6 @@
         color: #666;
       }
 
-      /* Available Spots - Centered */
       .available-spots {
         text-align: center;
         margin: 20px 0;
@@ -251,7 +260,6 @@
         margin-top: 5px;
       }
 
-      /* Parking Status */
       .parking-status {
         display: flex;
         align-items: center;
@@ -297,7 +305,6 @@
         100% { opacity: 1; }
       }
 
-      /* Quick Park Button */
       .quick-park-btn {
         background: linear-gradient(135deg, #2b9103, #4CAF50);
         color: white;
@@ -329,7 +336,6 @@
         box-shadow: none;
       }
 
-      /* Current Slot Info */
       .current-slot-info {
         background: #e8f5e9;
         border-radius: 10px;
@@ -361,7 +367,6 @@
         gap: 8px;
       }
 
-      /* Footer */
       .footer {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 15px;
@@ -384,7 +389,6 @@
         font-size: 14px;
       }
 
-      /* Responsive Design */
       @media (max-width: 768px) {
         .container {
           padding: 15px;
@@ -444,8 +448,9 @@
           align-items: stretch;
         }
 
-        .logout-btn {
-          align-self: flex-start;
+        .header-buttons {
+          align-self: stretch;
+          justify-content: space-between;
         }
 
         .logo {
@@ -495,7 +500,6 @@
         }
       }
 
-      /* Tablet Landscape */
       @media (min-width: 769px) and (max-width: 1024px) {
         .dashboard-grid {
           gap: 20px;
@@ -506,13 +510,11 @@
         }
       }
 
-      /* Hover effects */
       .clickable:hover {
         cursor: pointer;
         opacity: 0.9;
       }
 
-      /* Smooth transitions */
       * {
         transition: all 0.2s ease;
       }
@@ -521,26 +523,27 @@
 
   <body>
     <div class="container">
-      <!-- Header with Logo and Logout -->
       <div class="header">
         <div class="logo">ParkQueue</div>
-        <button class="logout-btn" onclick="logout()">
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
+        <div class="header-buttons">
+          <button class="header-btn team-btn" onclick="navigateToTeam()">
+            <span>👥</span>
+            <span>Meet Our Team</span>
+          </button>
+          <button class="header-btn" onclick="logout()">
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Loading State -->
       <div class="loading" id="loadingState">
         <div class="loading-spinner"></div>
         <p>Loading your dashboard...</p>
       </div>
 
-      <!-- Main Dashboard Content -->
       <div class="dashboard-content" id="dashboardContent" style="display: none">
-        <!-- 2x2 Grid Layout -->
         <div class="dashboard-grid">
-          <!-- Profile Box -->
           <div class="box profile-box" onclick="navigateToProfile()">
             <div class="profile-header">
               <div class="user-avatar" id="userAvatar">KG</div>
@@ -570,27 +573,23 @@
             </div>
           </div>
 
-          <!-- Parking Box -->
           <div class="box">
             <div class="parking-header">
               <h2>Parking Status</h2>
               <div class="parking-subtitle">Real-time availability</div>
             </div>
 
-            <!-- Available Spots -->
             <div class="available-spots">
               <div class="spots-number" id="availableSpots">8</div>
               <div class="spots-label">Available Spots</div>
               <div class="slots-info" id="slotsInfo">Out of 20 total slots</div>
             </div>
 
-            <!-- Parking Status -->
             <div class="parking-status status-not-parked" id="parkingStatus">
               <div class="status-dot"></div>
               <span id="statusText">NOT PARKED</span>
             </div>
 
-            <!-- Current Slot Info -->
             <div class="current-slot-info" id="currentSlotInfo">
               <div class="slot-info-header">
                 <span>🚗</span>
@@ -602,7 +601,6 @@
               </div>
             </div>
 
-            <!-- Quick Park Button -->
             <button class="quick-park-btn" id="quickParkBtn" onclick="navigateToParking()">
               <span>🚗</span>
               <span id="parkButtonText">PARK NOW</span>
@@ -610,7 +608,6 @@
           </div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
           <h3>Welcome to ParkQueue</h3>
           <p>
@@ -641,13 +638,16 @@
 
       console.log("Dashboard loaded");
 
-      // Global variables
       let currentUser = null;
       let isParked = false;
       let currentSlotId = null;
       let realtimeListeners = [];
 
-      // Navigation functions
+      function navigateToTeam() {
+        console.log("Navigating to team page...");
+        window.location.href = "../team/team.html";
+      }
+
       function navigateToParking() {
         console.log("Navigating to parking page...");
         window.location.href = "../parking/parking.html";
@@ -664,7 +664,6 @@
 
       async function initializeDashboard() {
         try {
-          // Use onAuthStateChanged to wait for auth state
           const user = await new Promise((resolve) => {
             const unsubscribe = onAuthStateChanged(auth, (user) => {
               unsubscribe();
@@ -681,7 +680,6 @@
           console.log("✅ Dashboard initialized for user:", user.email, "UID:", user.uid);
           currentUser = user;
 
-          // Check if user needs verification
           const needsVerification = await checkUserVerificationStatus(user);
           if (needsVerification) {
             console.log("🔄 User needs verification - redirecting to verification page");
@@ -689,7 +687,6 @@
             return;
           }
 
-          // User is verified, show dashboard content
           showDashboardContent();
           await loadUserData(user);
           await loadParkingStatus();
@@ -739,7 +736,6 @@
             await loadPersonalInfo(user.uid);
             await loadVehicleInfo(user.uid);
           } else {
-            // Create user document if it doesn't exist
             await setDoc(userDocRef, {
               email: user.email,
               username: user.email.split("@")[0],
@@ -811,7 +807,6 @@
 
       async function loadParkingStatus() {
         try {
-          // Check if user is currently parked
           const activeSlotQuery = query(
             collection(db, "parkingSlots"),
             where("user_id", "==", currentUser.uid),
@@ -821,20 +816,17 @@
           const snapshot = await getDocs(activeSlotQuery);
           
           if (!snapshot.empty) {
-            // User is parked
             const slotDoc = snapshot.docs[0];
             currentSlotId = slotDoc.id;
             const slotData = slotDoc.data();
             isParked = true;
             updateParkingStatusUI(true, slotData);
           } else {
-            // User is not parked
             isParked = false;
             currentSlotId = null;
             updateParkingStatusUI(false);
           }
           
-          // Load parking statistics
           await loadParkingStatistics();
           
         } catch (error) {
@@ -861,7 +853,6 @@
             }
           });
           
-          // Update UI
           updateParkingCounterUI(total, occupied, available);
           
         } catch (error) {
@@ -904,7 +895,6 @@
         const currentEntryTime = document.getElementById("currentEntryTime");
 
         if (parked) {
-          // User is parked
           parkingStatus.className = "parking-status status-parked";
           parkingStatus.innerHTML = '<div class="status-dot"></div><span id="statusText">PARKED</span>';
           statusText.textContent = "PARKED";
@@ -912,7 +902,6 @@
           quickParkBtn.disabled = false;
           parkButtonText.textContent = "EXIT PARKING";
           
-          // Show current slot info
           if (slotData) {
             currentSlotInfo.classList.add("visible");
             currentSlotNumber.textContent = slotData.slotId || "A-01";
@@ -922,7 +911,6 @@
             }
           }
         } else {
-          // User is not parked
           parkingStatus.className = "parking-status status-not-parked";
           parkingStatus.innerHTML = '<div class="status-dot"></div><span id="statusText">NOT PARKED</span>';
           statusText.textContent = "NOT PARKED";
@@ -930,7 +918,6 @@
           quickParkBtn.disabled = false;
           parkButtonText.textContent = "PARK NOW";
           
-          // Hide current slot info
           currentSlotInfo.classList.remove("visible");
         }
       }
@@ -939,11 +926,9 @@
         const availableSpots = document.getElementById("availableSpots");
         const slotsInfo = document.getElementById("slotsInfo");
         
-        // Update values
         availableSpots.textContent = available;
         slotsInfo.textContent = `Out of ${total} total slots`;
         
-        // Update color based on availability
         if (total === 0) {
           availableSpots.className = "spots-number full";
         } else if (available === 0) {
@@ -966,7 +951,6 @@
 
       function setupRealTimeListeners() {
         try {
-          // Listen for parking slots changes
           const slotsListener = onSnapshot(collection(db, "parkingSlots"), (snapshot) => {
             let total = 0;
             let occupied = 0;
@@ -1006,14 +990,12 @@
           const snapshot = await getDocs(activeSlotQuery);
           
           if (!snapshot.empty && !isParked) {
-            // User just got parked
             const slotDoc = snapshot.docs[0];
             currentSlotId = slotDoc.id;
             const slotData = slotDoc.data();
             isParked = true;
             updateParkingStatusUI(true, slotData);
           } else if (snapshot.empty && isParked) {
-            // User just exited
             isParked = false;
             currentSlotId = null;
             updateParkingStatusUI(false);
@@ -1024,12 +1006,10 @@
         }
       }
 
-      // Logout function
       async function logout() {
         try {
           console.log("🚪 Logging out...");
           
-          // Clean up real-time listeners
           realtimeListeners.forEach(unsubscribe => {
             if (typeof unsubscribe === 'function') {
               unsubscribe();
@@ -1044,12 +1024,11 @@
         }
       }
 
-      // Make functions globally available
       window.logout = logout;
+      window.navigateToTeam = navigateToTeam;
       window.navigateToParking = navigateToParking;
       window.navigateToProfile = navigateToProfile;
 
-      // Monitor auth state changes
       onAuthStateChanged(auth, (user) => {
         if (!user) {
           console.log("🔒 User signed out - monitoring auth state");
