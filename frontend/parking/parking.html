@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ParkQueue - Parking</title>
-    <!-- Use the same QR code library as profile page -->
+    <title>ParkQueue</title>
+      <link href="../../img/logow.png" rel="icon" type="img/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <style>
-        /* [Keep all the same CSS styles from previous version] */
         * {
             margin: 0;
             padding: 0;
@@ -330,7 +329,6 @@
             color: #666;
         }
 
-        /* Parking Counter Display */
         .counter-card {
             background: white;
             border-radius: 15px;
@@ -389,7 +387,7 @@
             color: #666;
         }
 
-        /* Loading Animation */
+
         .loading {
             display: none;
             text-align: center;
@@ -411,7 +409,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Error Message */
         .error-message {
             display: none;
             background: #ffebee;
@@ -524,7 +521,6 @@
             }
         }
 
-        /* Animation for parking status change */
         @keyframes statusChange {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
@@ -534,8 +530,6 @@
         .status-changing {
             animation: statusChange 0.5s ease;
         }
-
-        /* Current Parking Slot */
         .current-slot-card {
             background: linear-gradient(135deg, #2b9103, #4CAF50);
             color: white;
