@@ -29,6 +29,13 @@ import {
     Timestamp,
     onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
 
 // Firebase configuration
 const firebaseConfig = {
@@ -43,6 +50,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
@@ -80,7 +88,141 @@ function initializeEmailJS() {
         console.warn('⚠️ EmailJS SDK not loaded.');
     }
 }
+async function uploadFileToStorage(file, userId, folder = 'documents') {
+    try {
+        if (!file || !userId) {
+            throw new Error('File and user ID are required');
+        }
 
+        // Generate unique filename
+        const timestamp = Date.now();
+        const fileExtension = file.name.split('.').pop();
+        const fileName = `${folder}/${userId}/${timestamp}_${file.name.replace(/\s+/g, '_')}`;
+        
+        // Create storage reference
+        const storageRef = ref(storage, fileName);
+        
+        // Upload file
+        console.log('📤 Uploading file:', file.name);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        
+        // Return promise for upload completion
+        return new Promise((resolve, reject) => {
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    console.log(`Upload progress: ${progress.toFixed(2)}%`);
+                    // You can update UI progress here if needed
+                },
+                (error) => {
+                    console.error('❌ Upload error:', error);
+                    reject(error);
+                },
+                async () => {
+                    // Upload completed successfully
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    console.log('✅ File uploaded successfully:', downloadURL);
+                    resolve({
+                        url: downloadURL,
+                        fileName: fileName,
+                        originalName: file.name,
+                        size: file.size,
+                        type: file.type
+                    });
+                }
+            );
+        });
+    } catch (error) {
+        console.error('❌ uploadFileToStorage error:', error);
+        throw error;
+    }
+}
+
+// Delete file from Storage
+async function deleteFileFromStorage(filePath) {
+    try {
+        const fileRef = ref(storage, filePath);
+        await deleteObject(fileRef);
+        console.log('✅ File deleted:', filePath);
+        return true;
+    } catch (error) {
+        console.error('❌ Error deleting file:', error);
+        throw error;
+    }
+}
+
+// Get all files for a user
+async function getUserFiles(userId, folder = 'documents') {
+    try {
+        const listRef = ref(storage, `${folder}/${userId}`);
+        const result = await listAll(listRef);
+        
+        const files = await Promise.all(
+            result.items.map(async (itemRef) => {
+                const url = await getDownloadURL(itemRef);
+                const metadata = await getMetadata(itemRef);
+                
+                return {
+                    name: itemRef.name,
+                    url: url,
+                    path: itemRef.fullPath,
+                    size: metadata.size,
+                    type: metadata.contentType,
+                    updated: metadata.updated
+                };
+            })
+        );
+        
+        return files;
+    } catch (error) {
+        console.error('❌ Error getting user files:', error);
+        return [];
+    }
+}
+
+// -----------------------------
+// UPDATED DOCUMENT UPLOAD FUNCTION
+// -----------------------------
+
+async function uploadVerificationDocuments(userId, documents) {
+    try {
+        const uploadedDocs = [];
+        
+        for (const doc of documents) {
+            if (doc.file) {
+                // Upload file to Storage
+                const uploadResult = await uploadFileToStorage(
+                    doc.file, 
+                    userId, 
+                    'verification_docs'
+                );
+                
+                uploadedDocs.push({
+                    document_type: doc.document_type,
+                    document_url: uploadResult.url,
+                    file_name: uploadResult.fileName,
+                    original_name: uploadResult.originalName,
+                    file_size: uploadResult.size,
+                    file_type: uploadResult.type,
+                    uploaded_at: Timestamp.now()
+                });
+            } else if (doc.existing_url) {
+                // Keep existing URL
+                uploadedDocs.push({
+                    document_type: doc.document_type,
+                    document_url: doc.existing_url,
+                    is_external: true,
+                    uploaded_at: Timestamp.now()
+                });
+            }
+        }
+        
+        return uploadedDocs;
+    } catch (error) {
+        console.error('❌ Error uploading documents:', error);
+        throw error;
+    }
+}
 async function sendEmailViaEmailJS(email, code) {
     if (typeof emailjs === 'undefined' || !emailjs.send) {
         throw new Error('EmailJS SDK not loaded.');
@@ -850,7 +992,12 @@ export {
     submitProfileForApproval,
     isProfileComplete,
     getOptimizedQRData,
-    getCollectionCount
+    getCollectionCount,
+     storage,
+    uploadFileToStorage,
+    deleteFileFromStorage,
+    getUserFiles,
+    uploadVerificationDocuments
 };
 
 // Global functions

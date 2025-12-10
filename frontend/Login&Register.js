@@ -48,39 +48,23 @@ function switchToRegister(e) {
     e.preventDefault();
     clearAllErrors();
     
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
     if (isMobileDevice()) {
-        const formContainer = document.querySelector('.form-container');
-        const imageContainer = document.querySelector('.image-container');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
+        // Simple instant swap for mobile - no animations
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
         
-        formContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        imageContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        formContainer.classList.add('slide-down');
-        imageContainer.classList.add('slide-up');
-        
-        setTimeout(() => {
-            loginForm.style.display = 'none';
-            registerForm.style.display = 'block';
-            
-            setTimeout(() => {
-                formContainer.classList.remove('slide-down');
-                imageContainer.classList.remove('slide-up');
-                formContainer.classList.add('slide-up');
-                imageContainer.classList.add('slide-down');
-            }, 50);
-        }, 500);
-        
+        // Focus first input after swap
         setTimeout(() => {
             const registerEmail = document.getElementById('registerEmail');
             if (registerEmail) registerEmail.focus();
-        }, 550);
+        }, 50);
     } else {
+        // Desktop: keep the sliding animation
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
         
         formContainer.classList.add('slide-right');
         imageContainer.classList.add('slide-left');
@@ -96,39 +80,23 @@ function switchToLogin(e) {
     e.preventDefault();
     clearAllErrors();
     
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
     if (isMobileDevice()) {
-        const formContainer = document.querySelector('.form-container');
-        const imageContainer = document.querySelector('.image-container');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
+        // Simple instant swap for mobile - no animations
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
         
-        formContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        imageContainer.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-        
-        formContainer.classList.add('slide-up');
-        imageContainer.classList.add('slide-down');
-        
-        setTimeout(() => {
-            registerForm.style.display = 'none';
-            loginForm.style.display = 'block';
-            
-            setTimeout(() => {
-                formContainer.classList.remove('slide-up');
-                imageContainer.classList.remove('slide-down');
-                formContainer.classList.add('slide-down');
-                imageContainer.classList.add('slide-up');
-            }, 50);
-        }, 500);
-        
+        // Focus first input after swap
         setTimeout(() => {
             const loginEmail = document.getElementById('loginEmail');
             if (loginEmail) loginEmail.focus();
-        }, 550);
+        }, 50);
     } else {
+        // Desktop: keep the sliding animation
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
         
         formContainer.classList.remove('slide-right');
         imageContainer.classList.remove('slide-left');
@@ -140,15 +108,68 @@ function switchToLogin(e) {
     }
 }
 
+// Clean up on window resize
 window.addEventListener('resize', function() {
     if (!isMobileDevice()) {
         const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
         
-        formContainer.classList.remove('slide-down', 'slide-up');
-        imageContainer.classList.remove('slide-down', 'slide-up');
-        formContainer.style.order = '';
-        imageContainer.style.order = '';
+        formContainer.classList.remove('slide-right', 'slide-left', 'slide-down', 'slide-up');
+        imageContainer.classList.remove('slide-left', 'slide-right', 'slide-down', 'slide-up');
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Remove any mobile-specific initializations that affected animations
+    
+    const inputs = ['loginEmail', 'loginPassword', 'registerEmail', 'registerUsername', 'registerPassword', 'confirmPassword'];
+    
+    inputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', () => {
+                clearError(inputId);
+            });
+        }
+    });
+
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    
+    if (loginEmail && loginPassword) {
+        const handleLoginEnter = (e) => {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        };
+        
+        loginEmail.addEventListener('keypress', handleLoginEnter);
+        loginPassword.addEventListener('keypress', handleLoginEnter);
+    }
+
+    const registerPassword = document.getElementById('registerPassword');
+    const confirmPassword = document.getElementById('confirmPassword');
+    
+    if (registerPassword && confirmPassword) {
+        const handleRegisterEnter = (e) => {
+            if (e.key === 'Enter') {
+                handleRegistration();
+            }
+        };
+        
+        registerPassword.addEventListener('keypress', handleRegisterEnter);
+        confirmPassword.addEventListener('keypress', handleRegisterEnter);
+    }
+
+    const loginEmailInput = document.getElementById('loginEmail');
+    if (loginEmailInput) loginEmailInput.focus();
+
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function () {
+            this.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Logging in...';
+            this.disabled = true;
+        });
     }
 });
 
@@ -409,10 +430,10 @@ function clearLoginForm() {
 
 document.addEventListener('DOMContentLoaded', () => {
     if (isMobileDevice()) {
-        const formContainer = document.querySelector('.form-container');
         const imageContainer = document.querySelector('.image-container');
-        formContainer.style.order = '1';
-        imageContainer.style.order = '2';
+        if (imageContainer) {
+            imageContainer.style.display = 'none';
+        }
     }
     
     const inputs = ['loginEmail', 'loginPassword', 'registerEmail', 'registerUsername', 'registerPassword', 'confirmPassword'];
